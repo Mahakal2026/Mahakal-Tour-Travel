@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/* ============================================
+   MAHAKAL TOUR & TRAVELS — Design System
+   Tailwind CSS v4 @theme configuration
+   ============================================ */
+
+@theme inline {
+  /* — Saffron (Primary Brand Color) — */
+  --color-saffron-50: #fff7ed;
+  --color-saffron-100: #ffeed3;
+  --color-saffron-200: #ffd9a6;
+  --color-saffron-300: #ffc06e;
+  --color-saffron-400: #ffa033;
+  --color-saffron-500: #f97316;
+  --color-saffron-600: #ea580c;
+  --color-saffron-700: #c2410c;
+  --color-saffron-800: #9a3412;
+  --color-saffron-900: #7c2d12;
+
+  /* — Amber Gold (Accent) — */
+  --color-amber-gold: #d97706;
+
+  /* — Typography — */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-cinzel: var(--font-cinzel-decorative), serif;
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-slate-50, #f8fafc);
+  color: var(--color-slate-800, #1e293b);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   Custom Utility Classes
+   ============================================ */
+
+/* Section heading pattern used throughout the site */
+.section-subtitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-saffron-600);
+}
+
+.section-title {
+  font-family: var(--font-cinzel);
+  font-weight: 800;
+  color: var(--color-slate-900, #0f172a);
+}
+
+/* Hero gradient overlay */
+.hero-gradient {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.65) 0%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
+}
+
+/* Touch target minimum size for mobile */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-slate-100, #f1f5f9);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-slate-300, #cbd5e1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-slate-400, #94a3b8);
+}
+
+/* Focus visible styling for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-saffron-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip navigation link for accessibility */
+.skip-nav {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-saffron-600);
+  color: white;
+  font-weight: 700;
+  border-radius: 0 0 0.5rem 0.5rem;
+  transition: top 0.2s ease;
+}
+
+.skip-nav:focus {
+  top: 0;
+}
