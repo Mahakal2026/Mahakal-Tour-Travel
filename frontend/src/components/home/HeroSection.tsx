@@ -77,7 +77,7 @@ export default function HeroSection({ vehicles = [] }: { vehicles?: any[] }) {
             </div>
             <div className="text-center sm:text-left">
               <p className="text-2xl sm:text-3xl font-extrabold text-saffron-400 font-cinzel">
-                ₹11/km
+                ₹9/km
               </p>
               <p className="text-xs text-slate-300 uppercase tracking-widest mt-1">
                 Starting Price
