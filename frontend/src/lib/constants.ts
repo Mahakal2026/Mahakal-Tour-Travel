@@ -292,7 +292,7 @@ export const FAQ_DATA: FAQItem[] = [
   {
     question: "What are your taxi rates per kilometer?",
     answer:
-      "Our rates start from ₹11/km for Hatchback, ₹12/km for Sedan, ₹15/km for SUV (Ertiga), ₹20/km for Premium SUV (Innova Crysta), and ₹25/km for Tempo Traveller. Local packages start at ₹1,500 for 8 hours / 80 km.",
+      "Our rates start from ₹9/km for Hatchback, ₹12/km for Sedan, ₹15/km for SUV (Ertiga), ₹20/km for Premium SUV (Innova Crysta), and ₹25/km for Tempo Traveller. Local packages start at ₹1,500 for 8 hours / 80 km.",
   },
   {
     question: "Do you provide outstation taxi services from Gwalior?",

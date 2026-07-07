@@ -10,11 +10,7 @@ const optionalEnvVars = [
   "IMAGEKIT_PUBLIC_KEY",
   "IMAGEKIT_PRIVATE_KEY",
   "IMAGEKIT_URL_ENDPOINT",
-  "SMTP_HOST",
-  "SMTP_PORT",
-  "SMTP_USER",
-  "SMTP_PASS",
-  "OWNER_EMAIL",
+
   "FRONTEND_URL",
 ];
 
@@ -34,10 +30,6 @@ module.exports = {
   IMAGEKIT_PUBLIC_KEY: process.env.IMAGEKIT_PUBLIC_KEY || "",
   IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY || "",
   IMAGEKIT_URL_ENDPOINT: process.env.IMAGEKIT_URL_ENDPOINT || "",
-  SMTP_HOST: process.env.SMTP_HOST || "smtp.gmail.com",
-  SMTP_PORT: parseInt(process.env.SMTP_PORT || "587"),
-  SMTP_USER: process.env.SMTP_USER || "",
-  SMTP_PASS: process.env.SMTP_PASS || "",
-  OWNER_EMAIL: process.env.OWNER_EMAIL || "mahakaltt.gwalior@gmail.com",
+
   FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
 };
