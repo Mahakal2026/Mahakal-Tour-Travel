@@ -1,9 +1,5 @@
-// ============================================
-// WhatsApp Message Builder Utility
-// Preserves exact message format from original HTML
-// ============================================
-
 import { BUSINESS } from "./constants";
+import { apiClient } from "./api";
 
 const WA_BASE_URL = `https://wa.me/${BUSINESS.whatsappNumber}`;
 
@@ -11,19 +7,55 @@ const WA_BASE_URL = `https://wa.me/${BUSINESS.whatsappNumber}`;
  * Build a WhatsApp URL with pre-filled message
  */
 export function buildWhatsAppUrl(message: string): string {
-  return `${WA_BASE_URL}?text=${encodeURIComponent(message)}`;
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || BUSINESS.whatsappNumber;
+  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
 /**
  * Open WhatsApp with a pre-filled message
  */
 export function openWhatsApp(message: string): void {
-  window.open(buildWhatsAppUrl(message), "_blank");
+  if (typeof window !== "undefined") {
+    window.open(buildWhatsAppUrl(message), "_blank");
+  }
+}
+
+/**
+ * Core Non-blocking Booking Flow:
+ * Posts inquiry details to backend in background and redirects immediately to WhatsApp.
+ */
+export async function sendBookingInquiry(payload: {
+  name?: string;
+  phone?: string;
+  vehicle: "hatchback" | "sedan" | "suv" | "premium-suv" | "tempo";
+  tripType: "local" | "one-way" | "outstation-round" | "package-inquiry" | "general-contact";
+  routeOrPackage?: string;
+  estimatedFare?: number;
+  messageText: string;
+}): Promise<void> {
+  // 1. Post to API in background without blocking the UI redirect thread
+  apiClient
+    .post("/bookings", {
+      name: payload.name,
+      phone: payload.phone,
+      vehicle: payload.vehicle,
+      tripType: payload.tripType,
+      routeOrPackage: payload.routeOrPackage,
+      estimatedFare: payload.estimatedFare,
+      rawMessage: payload.messageText,
+      source: "website",
+    })
+    .catch((error) => {
+      // Handle failures silently so user conversion flow is never interrupted by network issues
+      console.error("Non-blocking booking log request failed:", error);
+    });
+
+  // 2. Open WhatsApp deep link immediately in a new window/tab
+  openWhatsApp(payload.messageText);
 }
 
 /**
  * Hero booking form → WhatsApp message
- * Exact format from original HTML
  */
 export function buildBookingMessage(data: {
   name: string;
@@ -38,7 +70,6 @@ export function buildBookingMessage(data: {
 
 /**
  * Contact form → WhatsApp message
- * Exact format from original HTML
  */
 export function buildContactMessage(data: {
   name: string;
@@ -50,7 +81,6 @@ export function buildContactMessage(data: {
 
 /**
  * Fare calculator → WhatsApp booking
- * Exact format from original HTML
  */
 export function buildFareBookingMessage(data: {
   tripType: string;
@@ -62,7 +92,6 @@ export function buildFareBookingMessage(data: {
 
 /**
  * Vehicle inquiry → WhatsApp message
- * Exact format from original HTML
  */
 export function buildCarInquiryMessage(carName: string): string {
   return `Hello Mahakal Tour & Travels, I'm interested in renting the *${carName}* cab. Please share rates, package deals and driver options for an outstation trip.`;
@@ -70,7 +99,6 @@ export function buildCarInquiryMessage(carName: string): string {
 
 /**
  * Package inquiry → WhatsApp message
- * Exact format from original HTML
  */
 export function buildPackageInquiryMessage(packageName: string): string {
   return `Hello Mahakal Tour & Travels, I would like to book the *${packageName}* package. Please let me know the booking schedule and payment terms.`;

@@ -1,0 +1,22 @@
+2026-07-07 20:45:38 [INFO]: ✅ MongoDB Connected: ac-qqfinth-shard-00-01.qagmkjb.mongodb.net
+2026-07-07 20:45:39 [INFO]: ⏰ Inquiry safety net cleanup cron job scheduled (daily at midnight)
+2026-07-07 20:45:39 [INFO]: 🚀 Server running in development mode on port 5000
+2026-07-07 20:45:39 [INFO]: 🔗 Admin login: admin@mahakaltravels.com
+2026-07-07 20:46:10 [INFO]: 🛑 Graceful shutdown initiated due to SIGINT...
+2026-07-07 20:46:23 [INFO]: ✅ MongoDB Connected: ac-qqfinth-shard-00-00.qagmkjb.mongodb.net
+2026-07-07 20:46:23 [INFO]: ⏰ Inquiry safety net cleanup cron job scheduled (daily at midnight)
+2026-07-07 20:46:23 [INFO]: 🚀 Server running in development mode on port 5000
+2026-07-07 20:46:23 [INFO]: 🔗 Admin login: admin@mahakaltravels.com
+2026-07-07 20:55:06 [INFO]: ✅ MongoDB Connected: ac-qqfinth-shard-00-00.qagmkjb.mongodb.net
+2026-07-07 20:55:07 [INFO]: ⏰ Inquiry safety net cleanup cron job scheduled (daily at midnight)
+2026-07-07 20:55:07 [INFO]: 🚀 Server running in development mode on port 5000
+2026-07-07 20:55:07 [INFO]: 🔗 Admin login: admin@mahakaltravels.com
+2026-07-07 20:55:12 [INFO]: ✅ MongoDB Connected: ac-qqfinth-shard-00-01.qagmkjb.mongodb.net
+2026-07-07 20:55:13 [INFO]: ⏰ Inquiry safety net cleanup cron job scheduled (daily at midnight)
+2026-07-07 20:55:13 [INFO]: 🚀 Server running in development mode on port 5000
+2026-07-07 20:55:13 [INFO]: 🔗 Admin login: admin@mahakaltravels.com
+2026-07-07 20:55:28 [INFO]: ✅ MongoDB Connected: ac-qqfinth-shard-00-01.qagmkjb.mongodb.net
+2026-07-07 20:55:30 [INFO]: ⏰ Inquiry safety net cleanup cron job scheduled (daily at midnight)
+2026-07-07 20:55:30 [INFO]: 🚀 Server running in development mode on port 5000
+2026-07-07 20:55:30 [INFO]: 🔗 Admin login: admin@mahakaltravels.com
+2026-07-07 20:59:06 [INFO]: ✅ MongoDB Connected: ac-qqfinth-shard-00-02.qagmkjb.mongodb.net

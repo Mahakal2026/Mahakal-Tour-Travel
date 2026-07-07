@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Clock, CircleCheck } from "lucide-react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import AnimatedSection from "@/components/ui/AnimatedSection";
+import { Package } from "@/types";
 
-export default function PackageShowcase({ packages = [] }: { packages?: any[] }) {
-  // Only show active packages
-  const displayPackages = packages.filter(p => p.isActive);
+export default function PackageShowcase({ packages = [] }: { packages?: Package[] }) {
+  const displayPackages = packages.filter((p) => p.isActive);
 
   if (displayPackages.length === 0) return null;
 
@@ -23,61 +24,68 @@ export default function PackageShowcase({ packages = [] }: { packages?: any[] })
         </AnimatedSection>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayPackages.map((pkg, index) => (
-            <AnimatedSection key={pkg._id || pkg.title} delay={index * 0.1}>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden hover:shadow-2xl transition-all flex flex-col h-full">
-                {/* Image */}
-                <div className="relative h-56 bg-slate-900">
-                  <img
-                    src={pkg.imageUrl || "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80"}
-                    alt={pkg.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute bottom-4 left-4 bg-slate-950/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-saffron-400" />
-                    {pkg.duration}
-                  </div>
-                </div>
+          {displayPackages.map((pkg, index) => {
+            const formattedPrice = pkg.price
+              ? `₹${pkg.price.toLocaleString("en-IN")}`
+              : pkg.priceText || "Custom Quote";
 
-                {/* Content */}
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-slate-900">
-                    {pkg.title}
-                  </h3>
-                  <p className="text-slate-500 text-sm mt-2 leading-relaxed">
-                    {pkg.description}
-                  </p>
-
-                  <ul className="my-5 space-y-2.5 text-xs text-slate-600">
-                    {pkg.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2">
-                        <CircleCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-auto border-t border-slate-100 pt-5 flex items-center justify-between">
-                    <div>
-                      <span className="text-xs text-slate-400 block">
-                        {pkg.priceLabel}
-                      </span>
-                      <span className="text-2xl font-extrabold text-saffron-600">
-                        {pkg.price}
-                      </span>
+            return (
+              <AnimatedSection key={pkg._id || pkg.name} delay={index * 0.1}>
+                <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden hover:shadow-2xl transition-all flex flex-col h-full">
+                  {/* Image */}
+                  <div className="relative h-56 bg-slate-900">
+                    <Image
+                      src={
+                        pkg.imageUrl ||
+                        "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80"
+                      }
+                      alt={pkg.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover"
+                      loading="lazy"
+                    />
+                    <div className="absolute bottom-4 left-4 bg-slate-950/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 z-10">
+                      <Clock className="w-3.5 h-3.5 text-saffron-400" />
+                      {pkg.duration}
                     </div>
-                    <Link
-                      href={`/packages/${pkg._id}`}
-                      className="bg-saffron-600 hover:bg-saffron-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all touch-target text-center"
-                    >
-                      View Details
-                    </Link>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-slate-900 font-cinzel">{pkg.name}</h3>
+                    <p className="text-slate-500 text-sm mt-2 leading-relaxed">{pkg.description}</p>
+
+                    <ul className="my-5 space-y-2.5 text-xs text-slate-600">
+                      {pkg.features.map((feature) => (
+                        <li key={feature} className="flex items-center gap-2">
+                          <CircleCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-auto border-t border-slate-100 pt-5 flex items-center justify-between">
+                      <div>
+                        <span className="text-xs text-slate-400 block">
+                          {pkg.price ? pkg.priceText || "Package Price" : "Price Inclusions"}
+                        </span>
+                        <span className="text-2xl font-extrabold text-saffron-600">
+                          {formattedPrice}
+                        </span>
+                      </div>
+                      <Link
+                        href={`/packages/${pkg._id}`}
+                        className="bg-saffron-600 hover:bg-saffron-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all touch-target text-center"
+                      >
+                        View Details
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </AnimatedSection>
-          ))}
+              </AnimatedSection>
+            );
+          })}
         </div>
       </div>
     </section>

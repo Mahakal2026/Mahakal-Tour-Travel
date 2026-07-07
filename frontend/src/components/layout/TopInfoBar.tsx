@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { MapPin, Clock, PhoneCall } from "lucide-react";
+import { FaMapMarkerAlt, FaRegClock, FaPhoneAlt } from "react-icons/fa";
 import { BUSINESS } from "@/lib/constants";
 
 export default function TopInfoBar() {
@@ -13,11 +13,11 @@ export default function TopInfoBar() {
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
         <div className="flex items-center space-x-4">
           <span className="flex items-center">
-            <MapPin className="w-3.5 h-3.5 text-saffron-500 mr-2" />
+            <FaMapMarkerAlt className="w-3.5 h-3.5 text-saffron-500 mr-2" />
             {BUSINESS.address.street}, {BUSINESS.address.city}
           </span>
           <span className="hidden md:flex items-center">
-            <Clock className="w-3.5 h-3.5 text-saffron-500 mr-2" />
+            <FaRegClock className="w-3.5 h-3.5 text-saffron-500 mr-2" />
             {BUSINESS.hours}
           </span>
         </div>
@@ -26,7 +26,7 @@ export default function TopInfoBar() {
             href={`tel:${BUSINESS.phone}`}
             className="flex items-center text-saffron-100 hover:text-saffron-500 font-semibold transition-colors"
           >
-            <PhoneCall className="w-3.5 h-3.5 text-saffron-500 mr-2 animate-bounce" />
+            <FaPhoneAlt className="w-3 h-3 text-saffron-500 mr-2 animate-bounce" style={{ animationDuration: "2s" }} />
             Call Support: {BUSINESS.phoneFormatted}
           </a>
         </div>

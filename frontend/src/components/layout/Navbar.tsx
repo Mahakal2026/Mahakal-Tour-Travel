@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Phone } from "lucide-react";
+import { FaBars, FaTimes, FaPhoneAlt } from "react-icons/fa";
 import { BUSINESS, NAV_LINKS } from "@/lib/constants";
 
 // Custom Om icon SVG matching the original FontAwesome fa-om
@@ -35,7 +35,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-20">
           {/* Logo Section */}
-          <div className="flex items-center">
+          <div className="flex items-center flex-shrink-0">
             <Link
               href="/#home"
               className="flex items-center space-x-3"
@@ -55,13 +55,13 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Links (Centered) */}
-          <div className="hidden lg:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+          {/* Desktop Links (Centered via Flexbox) */}
+          <div className="hidden lg:flex items-center justify-center flex-grow mx-4 space-x-4 xl:space-x-8">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-slate-700 hover:text-saffron-600 font-medium transition-colors"
+                className="text-slate-700 hover:text-saffron-600 font-medium transition-colors text-sm xl:text-base whitespace-nowrap"
               >
                 {link.label}
               </Link>
@@ -69,12 +69,12 @@ export default function Navbar() {
           </div>
 
           {/* CTA Button (Right) */}
-          <div className="hidden lg:flex items-center">
+          <div className="hidden lg:flex items-center flex-shrink-0">
             <a
               href={`tel:${BUSINESS.phone}`}
               className="bg-saffron-600 hover:bg-saffron-700 text-white font-bold px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2"
             >
-              <Phone className="w-4 h-4" />
+              <FaPhoneAlt className="w-3.5 h-3.5" />
               Book Cab Now
             </a>
           </div>
@@ -89,9 +89,9 @@ export default function Navbar() {
               aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? (
-                <X className="w-7 h-7" />
+                <FaTimes className="w-6 h-6" />
               ) : (
-                <Menu className="w-7 h-7" />
+                <FaBars className="w-6 h-6" />
               )}
             </button>
           </div>
@@ -124,7 +124,7 @@ export default function Navbar() {
                   href={`tel:${BUSINESS.phone}`}
                   className="w-full text-center bg-saffron-600 hover:bg-saffron-700 text-white font-bold py-3.5 px-4 rounded-lg shadow-md block touch-target"
                 >
-                  <Phone className="w-4 h-4 inline mr-2" />
+                  <FaPhoneAlt className="w-3.5 h-3.5 inline mr-2" />
                   Call to Book: {BUSINESS.phone}
                 </a>
               </div>

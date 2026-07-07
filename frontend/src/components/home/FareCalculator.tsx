@@ -3,8 +3,9 @@
 import { CalendarCheck, Info } from "lucide-react";
 import { type TripType } from "@/lib/constants";
 import { useFareCalculator } from "@/hooks/useFareCalculator";
-import { buildFareBookingMessage, openWhatsApp } from "@/lib/whatsapp";
+import { buildFareBookingMessage, sendBookingInquiry } from "@/lib/whatsapp";
 import AnimatedSection from "@/components/ui/AnimatedSection";
+import { Vehicle } from "@/types";
 
 const TRIP_TABS: { key: TripType; label: string }[] = [
   { key: "local", label: "Local (8h / 80km)" },
@@ -19,7 +20,7 @@ const DAYS_OPTIONS = [
   { value: 4, label: "4+ Days (Custom Booking Recommended)" },
 ];
 
-export default function FareCalculator({ vehicles = [] }: { vehicles?: any[] }) {
+export default function FareCalculator({ vehicles = [] }: { vehicles?: Vehicle[] }) {
   const {
     tripType,
     setTripType,
@@ -34,14 +35,29 @@ export default function FareCalculator({ vehicles = [] }: { vehicles?: any[] }) 
     getVehicleLabel,
   } = useFareCalculator(vehicles);
 
-  const handleBookAtPrice = () => {
-    openWhatsApp(
-      buildFareBookingMessage({
-        tripType: getTripDescription(),
-        vehicle: getVehicleLabel(),
-        price: formattedFare,
-      })
-    );
+  const handleBookAtPrice = async () => {
+    // Map vehicle name to backend enum
+    let vehicleEnum: "hatchback" | "sedan" | "suv" | "premium-suv" | "tempo" = "sedan";
+    const selectedVehicle = vehicles.find((v) => v.name === vehicle);
+    if (selectedVehicle) {
+      vehicleEnum = selectedVehicle.type;
+    }
+
+    const message = buildFareBookingMessage({
+      tripType: getTripDescription(),
+      vehicle: getVehicleLabel(),
+      price: formattedFare,
+    });
+
+    const numericFare = parseInt(formattedFare.replace(/[^0-9]/g, ""), 10) || 0;
+
+    await sendBookingInquiry({
+      vehicle: vehicleEnum,
+      tripType: tripType, // matches local, outstation-round, one-way enums
+      routeOrPackage: getTripDescription(),
+      estimatedFare: numericFare,
+      messageText: message,
+    });
   };
 
   return (
@@ -76,7 +92,7 @@ export default function FareCalculator({ vehicles = [] }: { vehicles?: any[] }) 
                       key={tab.key}
                       type="button"
                       onClick={() => setTripType(tab.key)}
-                      className={`py-3 px-2 rounded-lg font-bold text-sm transition-all touch-target ${
+                      className={`py-3 px-2 rounded-lg font-bold text-sm transition-all touch-target cursor-pointer ${
                         tripType === tab.key
                           ? "bg-white text-saffron-700 shadow-sm"
                           : "text-slate-600 hover:text-slate-900"
@@ -100,8 +116,8 @@ export default function FareCalculator({ vehicles = [] }: { vehicles?: any[] }) 
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:bg-white text-sm"
                   >
                     {vehicles.map((v) => (
-                      <option key={v._id} value={v.name}>
-                        {v.name} ({v.type})
+                      <option key={v._id || v.name} value={v.name}>
+                        {v.name}
                       </option>
                     ))}
                   </select>
@@ -137,7 +153,7 @@ export default function FareCalculator({ vehicles = [] }: { vehicles?: any[] }) 
                           value={distance}
                           min={1}
                           onChange={(e) =>
-                            setDistance(parseInt(e.target.value) || 0)
+                            setDistance(parseInt(e.target.value, 10) || 0)
                           }
                           className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:bg-white text-sm"
                         />
@@ -155,7 +171,7 @@ export default function FareCalculator({ vehicles = [] }: { vehicles?: any[] }) 
                   </label>
                   <select
                     value={days}
-                    onChange={(e) => setDays(parseInt(e.target.value))}
+                    onChange={(e) => setDays(parseInt(e.target.value, 10))}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:bg-white text-sm"
                   >
                     {DAYS_OPTIONS.map((opt) => (
@@ -182,7 +198,7 @@ export default function FareCalculator({ vehicles = [] }: { vehicles?: any[] }) 
                 </div>
                 <button
                   onClick={handleBookAtPrice}
-                  className="w-full sm:w-auto bg-saffron-600 hover:bg-saffron-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-saffron-500/10 transition-all flex items-center justify-center gap-2 touch-target"
+                  className="w-full sm:w-auto bg-saffron-600 hover:bg-saffron-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-saffron-500/10 transition-all flex items-center justify-center gap-2 touch-target cursor-pointer"
                 >
                   <CalendarCheck className="w-5 h-5" />
                   Book At This Price

@@ -22,7 +22,7 @@
   --color-amber-gold: #d97706;
 
   /* — Typography — */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-helvetica), ui-sans-serif, system-ui, sans-serif;
   --font-cinzel: var(--font-cinzel-decorative), serif;
 }
 

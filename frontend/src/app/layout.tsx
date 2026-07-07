@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, Cinzel } from "next/font/google";
+import { Cinzel } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
-import TopInfoBar from "@/components/layout/TopInfoBar";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import StickyWhatsAppCTA from "@/components/layout/StickyWhatsAppCTA";
+import LayoutWrapper from "@/components/layout/LayoutWrapper";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+const helvetica = localFont({
+  src: "../../public/Helvetica.ttf",
+  variable: "--font-helvetica",
   display: "swap",
-  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 const cinzel = Cinzel({
@@ -21,6 +18,7 @@ const cinzel = Cinzel({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://mahakaltourandtravels.com"),
   title: {
     default: "Mahakal Tour and Travels - Gwalior's Premium Taxi Service",
     template: "%s | Mahakal Tour and Travels",
@@ -157,7 +155,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${cinzel.variable} scroll-smooth`}
+      className={`${helvetica.variable} ${cinzel.variable} scroll-smooth`}
+      data-scroll-behavior="smooth"
     >
       <head>
         <script
@@ -172,11 +171,7 @@ export default function RootLayout({
             Skip to main content
           </a>
 
-          <TopInfoBar />
-          <Navbar />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-          <StickyWhatsAppCTA />
+          <LayoutWrapper>{children}</LayoutWrapper>
         </Providers>
       </body>
     </html>
