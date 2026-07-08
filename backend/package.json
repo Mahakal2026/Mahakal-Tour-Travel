@@ -27,11 +27,8 @@
     "morgan": "^1.11.0",
     "multer": "^2.2.0",
     "node-cron": "^4.6.0",
-<<<<<<< HEAD
     "nodemailer": "^9.0.3",
     "winston": "^3.19.0",
-=======
->>>>>>> 1af1778793abdb22f8069ffc39cb1c137720814b
     "zod": "^4.4.3"
   },
   "devDependencies": {

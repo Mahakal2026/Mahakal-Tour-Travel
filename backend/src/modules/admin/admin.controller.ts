@@ -9,9 +9,10 @@ import { sendSuccess, sendError } from "../../utils/apiResponse";
  */
 export const loginAdmin = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
-
+  console.log(email, password)
   const result = await AdminService.loginAdmin(email, password);
 
+  console.log(result)
   // Set httpOnly cookie for refresh token
   res.cookie("refreshToken", result.refreshToken, {
     httpOnly: true,
@@ -22,7 +23,9 @@ export const loginAdmin = async (req: Request, res: Response): Promise<void> => 
 
   logger.info(`🔑 [ReqID: ${req.id}] Admin signed in: ${result.admin.email}`);
 
-  sendSuccess(res, {
+  // Return flat response to support legacy frontend res.data.token syntax
+  res.status(200).json({
+    success: true,
     message: "Login successful",
     token: result.accessToken,
   });
@@ -32,6 +35,8 @@ export const loginAdmin = async (req: Request, res: Response): Promise<void> => 
  * Verify Admin Token Handler
  */
 export const verifyTokenStatus = async (req: Request, res: Response): Promise<void> => {
+  console.log(req);
+  
   sendSuccess(res, {
     message: "Token is valid",
     admin: req.admin,
@@ -43,7 +48,7 @@ export const verifyTokenStatus = async (req: Request, res: Response): Promise<vo
  */
 export const refreshAdminToken = async (req: Request, res: Response): Promise<void> => {
   const refreshToken = req.cookies?.refreshToken;
-
+  console.log("refresh token :", refreshToken)
   if (!refreshToken) {
     sendError(res, "Refresh token not found", "UNAUTHORIZED", 401);
     return;
@@ -51,7 +56,9 @@ export const refreshAdminToken = async (req: Request, res: Response): Promise<vo
 
   const result = await AdminService.refreshAdminToken(refreshToken);
 
-  sendSuccess(res, {
+  // Return flat response to support legacy frontend res.data.token syntax
+  res.status(200).json({
+    success: true,
     token: result.accessToken,
   });
 };

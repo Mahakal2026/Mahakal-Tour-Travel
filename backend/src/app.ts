@@ -33,7 +33,16 @@ app.use(cookieParser());
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
-// Prevent NoSQL query injection by stripping $ and . operators
+// Prevent NoSQL query injection by stripping $ and . operators (Express 5 compatibility shim)
+app.use((req, res, next) => {
+  Object.defineProperty(req, "query", {
+    value: { ...req.query },
+    writable: true,
+    configurable: true,
+    enumerable: true,
+  });
+  next();
+});
 app.use(mongoSanitize());
 
 // Setup CORS configuration using allowed frontend URL from environment configuration

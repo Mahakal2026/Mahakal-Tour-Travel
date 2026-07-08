@@ -43,8 +43,9 @@ export const sendError = (
   statusCode = 500,
   details?: any
 ): Response => {
-  const payload: ApiResponsePayload<null> = {
+  const payload = {
     success: false,
+    message, // Top-level message for legacy clients
     error: {
       message,
       code,
