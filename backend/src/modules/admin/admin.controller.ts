@@ -17,7 +17,8 @@ export const loginAdmin = async (req: Request, res: Response): Promise<void> => 
   res.cookie("refreshToken", result.refreshToken, {
     httpOnly: true,
     secure: env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: env.NODE_ENV === "production" ? "strict" : "lax",
+    path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
@@ -62,3 +63,22 @@ export const refreshAdminToken = async (req: Request, res: Response): Promise<vo
     token: result.accessToken,
   });
 };
+
+/**
+ * Admin Logout Handler
+ */
+export const logoutAdmin = async (req: Request, res: Response): Promise<void> => {
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: env.NODE_ENV === "production",
+    sameSite: env.NODE_ENV === "production" ? "strict" : "lax",
+    path: "/",
+  });
+
+  logger.info(`🔑 [ReqID: ${req.id}] Admin logged out: ${req.admin?.email}`);
+
+  sendSuccess(res, {
+    message: "Logout successful",
+  });
+};
+

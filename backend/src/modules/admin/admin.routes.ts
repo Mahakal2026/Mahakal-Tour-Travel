@@ -29,4 +29,11 @@ router.post(
   asyncHandler(adminController.refreshAdminToken)
 );
 
+// Admin: Logout (clears HttpOnly cookie)
+router.post(
+  "/logout",
+  auth,
+  asyncHandler(adminController.logoutAdmin)
+);
+
 export default router;

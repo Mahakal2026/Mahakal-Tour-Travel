@@ -1,62 +1,161 @@
 import { BUSINESS } from "./constants";
 import { apiClient } from "./api";
 
-const WA_BASE_URL = `https://wa.me/${BUSINESS.whatsappNumber}`;
+export interface BookingPayload {
+  vehicle: any; // Can be a Vehicle object or vehicle string name
+  tripType: "local" | "outstation-round" | "package-inquiry" | "general-contact";
+  km?: number;
+  days?: number;
+  packageId?: string;
+  packageName?: string;
+  price: number;
+  breakdown?: {
+    basePrice?: number;
+    excessKmCharge?: number;
+    isExtrapolated?: boolean;
+  };
+  customerName?: string;
+  customerPhone?: string;
+}
 
 /**
- * Build a WhatsApp URL with pre-filled message
+ * Core WhatsApp Booking Flow:
+ * 1. Builds a structured WhatsApp message text.
+ * 2. Fires a non-blocking POST to /api/bookings to log the inquiry.
+ * 3. Immediately redirects to WhatsApp in a new tab.
  */
+export async function buildAndSendBooking({
+  vehicle,
+  tripType,
+  km,
+  days,
+  packageId,
+  packageName,
+  price,
+  breakdown,
+  customerName = "Valued Customer",
+  customerPhone = "",
+}: BookingPayload): Promise<void> {
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || BUSINESS.whatsappNumber;
+
+  let messageText = `Hello Mahakal Tour & Travels, I would like to book a trip!\n\n`;
+  let routeOrPackage = "";
+  const vehicleName = vehicle?.name || (typeof vehicle === "string" ? vehicle : "Sedan");
+  const vehicleType = vehicle?.type || "sedan";
+
+  if (tripType === "package-inquiry") {
+    messageText += `*Trip Type:* Tour Package Booking\n`;
+    messageText += `*Package Name:* ${packageName || vehicleName || "Custom Tour"}\n`;
+    messageText += `*Duration:* ${vehicle?.duration || "As specified in details"}\n`;
+    messageText += `*Price:* ₹${price.toLocaleString("en-IN")}\n`;
+    routeOrPackage = packageName || vehicleName || "Package Inquiry";
+  } else if (tripType === "local") {
+    messageText += `*Trip Type:* Local Sightseeing (8h/80km)\n`;
+    messageText += `*Vehicle Model:* ${vehicleName}\n`;
+    messageText += `*Rate:* ₹${price.toLocaleString("en-IN")} flat rate\n`;
+    routeOrPackage = `Local 8h/80km - ${vehicleName}`;
+  } else if (tripType === "outstation-round") {
+    messageText += `*Trip Type:* Outstation Round-Trip\n`;
+    messageText += `*Vehicle Model:* ${vehicleName}\n`;
+    messageText += `*Duration:* ${days} Days\n`;
+    messageText += `*Distance:* ${km} Km\n`;
+    messageText += `*Estimated Fare:* ₹${price.toLocaleString("en-IN")}\n`;
+
+    if (breakdown) {
+      messageText += `\n*Fare Breakdown:*\n`;
+      if (breakdown.basePrice) {
+        messageText += `• Base Tier Price: ₹${breakdown.basePrice.toLocaleString("en-IN")}\n`;
+      }
+      if (breakdown.excessKmCharge) {
+        messageText += `• Excess KM Charge: ₹${breakdown.excessKmCharge.toLocaleString("en-IN")}\n`;
+      }
+      if (breakdown.isExtrapolated) {
+        messageText += `\n*(Note: Estimated price for extended trips)*\n`;
+      }
+    }
+    routeOrPackage = `Outstation Round-Trip - ${km}km / ${days} days (${vehicleName})`;
+  } else if ((tripType as string) === "general-contact") {
+    messageText += `*Trip Type:* General Inquiry\n`;
+    messageText += `*Message:* ${packageName || ""}\n`;
+    routeOrPackage = "General Contact Inquiry";
+  }
+
+  messageText += `\n*Customer Info:*\n`;
+  messageText += `• Name: ${customerName}\n`;
+  if (customerPhone) {
+    messageText += `• Phone: ${customerPhone}\n`;
+  }
+  messageText += `\nPlease confirm availability. Thank you!`;
+
+  // Clean phone number for validator (remove spaces, -, etc.)
+  const cleanPhone = customerPhone.replace(/[\s-]/g, "");
+
+  // 2. Fire non-blocking POST to /api/bookings
+  apiClient
+    .post("/bookings", {
+      name: customerName,
+      phone: cleanPhone || undefined,
+      vehicle: vehicleType,
+      tripType: tripType === "package-inquiry" ? "package-inquiry" : tripType === "local" ? "local" : "outstation-round",
+      routeOrPackage,
+      estimatedFare: price,
+      rawMessage: messageText,
+      source: "website",
+    })
+    .catch((error) => {
+      console.error("Non-blocking booking log request failed:", error);
+    });
+
+  // 3. Immediately redirect to WhatsApp
+  if (typeof window !== "undefined") {
+    const encoded = encodeURIComponent(messageText);
+    window.open(`https://wa.me/${whatsappNumber}?text=${encoded}`, "_blank");
+  }
+}
+
+// ============================================================================
+// Legacy Helpers (Preserved to maintain compilation in unchanged components)
+// ============================================================================
+
 export function buildWhatsAppUrl(message: string): string {
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || BUSINESS.whatsappNumber;
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
-/**
- * Open WhatsApp with a pre-filled message
- */
 export function openWhatsApp(message: string): void {
   if (typeof window !== "undefined") {
     window.open(buildWhatsAppUrl(message), "_blank");
   }
 }
 
-/**
- * Core Non-blocking Booking Flow:
- * Posts inquiry details to backend in background and redirects immediately to WhatsApp.
- */
 export async function sendBookingInquiry(payload: {
   name?: string;
   phone?: string;
   vehicle: "hatchback" | "sedan" | "suv" | "premium-suv" | "tempo";
-  tripType: "local" | "one-way" | "outstation-round" | "package-inquiry" | "general-contact";
+  tripType: string;
   routeOrPackage?: string;
   estimatedFare?: number;
   messageText: string;
 }): Promise<void> {
-  // 1. Post to API in background without blocking the UI redirect thread
+  // Fire public POST to /bookings
   apiClient
     .post("/bookings", {
       name: payload.name,
-      phone: payload.phone,
+      phone: payload.phone ? payload.phone.replace(/[\s-]/g, "") : undefined,
       vehicle: payload.vehicle,
-      tripType: payload.tripType,
+      tripType: payload.tripType === "one-way" ? "outstation-round" : payload.tripType,
       routeOrPackage: payload.routeOrPackage,
       estimatedFare: payload.estimatedFare,
       rawMessage: payload.messageText,
       source: "website",
     })
     .catch((error) => {
-      // Handle failures silently so user conversion flow is never interrupted by network issues
-      console.error("Non-blocking booking log request failed:", error);
+      console.error("Non-blocking legacy log failed:", error);
     });
 
-  // 2. Open WhatsApp deep link immediately in a new window/tab
   openWhatsApp(payload.messageText);
 }
 
-/**
- * Hero booking form → WhatsApp message
- */
 export function buildBookingMessage(data: {
   name: string;
   phone: string;
@@ -68,45 +167,14 @@ export function buildBookingMessage(data: {
   return `Hello Mahakal Tour & Travels, I would like to book a cab.\n\n*Booking Details:*\n• *Name:* ${data.name}\n• *Phone:* ${data.phone}\n• *Cab Choice:* ${data.vehicle}\n• *Pick-up Location:* ${data.pickup}\n• *Drop Location:* ${data.drop}\n• *Travel Date:* ${data.date}\n\nPlease confirm availability. Thank you!`;
 }
 
-/**
- * Contact form → WhatsApp message
- */
+export function buildGenericGreeting(): string {
+  return "Hello Mahakal Travels, I want to book a taxi.";
+}
+
 export function buildContactMessage(data: {
   name: string;
   phone: string;
   message: string;
 }): string {
   return `Hello Mahakal Tour & Travels,\n\nI have an inquiry from your website:\n• *Name:* ${data.name}\n• *Phone:* ${data.phone}\n• *Message:* ${data.message}`;
-}
-
-/**
- * Fare calculator → WhatsApp booking
- */
-export function buildFareBookingMessage(data: {
-  tripType: string;
-  vehicle: string;
-  price: string;
-}): string {
-  return `Hello Mahakal Tour & Travels, I calculated a fare on your website and want to book:\n\n• *Trip Type:* ${data.tripType}\n• *Cab Model:* ${data.vehicle}\n• *Estimated Total:* ${data.price}\n\nPlease help me complete this booking!`;
-}
-
-/**
- * Vehicle inquiry → WhatsApp message
- */
-export function buildCarInquiryMessage(carName: string): string {
-  return `Hello Mahakal Tour & Travels, I'm interested in renting the *${carName}* cab. Please share rates, package deals and driver options for an outstation trip.`;
-}
-
-/**
- * Package inquiry → WhatsApp message
- */
-export function buildPackageInquiryMessage(packageName: string): string {
-  return `Hello Mahakal Tour & Travels, I would like to book the *${packageName}* package. Please let me know the booking schedule and payment terms.`;
-}
-
-/**
- * Generic WhatsApp greeting
- */
-export function buildGenericGreeting(): string {
-  return "Hello Mahakal Travels, I want to book a taxi.";
 }

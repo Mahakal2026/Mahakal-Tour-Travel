@@ -80,7 +80,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/#contact"
+                  href="/contact"
                   className="text-slate-400 hover:text-saffron-400 transition-colors text-xs"
                 >
                   Contact Us

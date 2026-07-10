@@ -14,6 +14,9 @@ const envSchema = z.object({
   ADMIN_EMAIL: z.string().email().default("admin@mahakaltravels.com"),
   ADMIN_PASSWORD_HASH: z.string().min(1, "ADMIN_PASSWORD_HASH is required"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  IMAGEKIT_PUBLIC_KEY: z.string().min(1, "IMAGEKIT_PUBLIC_KEY is required"),
+  IMAGEKIT_PRIVATE_KEY: z.string().min(1, "IMAGEKIT_PRIVATE_KEY is required"),
+  IMAGEKIT_URL_ENDPOINT: z.string().url("IMAGEKIT_URL_ENDPOINT must be a valid URL").min(1, "IMAGEKIT_URL_ENDPOINT is required"),
 });
 
 const parseEnv = () => {

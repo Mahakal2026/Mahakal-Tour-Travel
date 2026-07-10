@@ -1,3 +1,4 @@
+
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
@@ -8,7 +9,6 @@ export interface IAdminPayload {
   role: string;
 }
 
-// Extend Express Request interface to store admin payload
 declare global {
   namespace Express {
     interface Request {
@@ -22,22 +22,19 @@ export const auth = (
   res: Response,
   next: NextFunction
 ): void => {
-  // 1. Header se token lo
-  const authHeader = req.headers.authorization;
-  const bearerToken = authHeader?.startsWith("Bearer ")
-    ? authHeader.split(" ")[1]
-    : null;
+  let token = req.cookies?.token || req.cookies?.accessToken || req.cookies?.admin_token;
 
-  // 2. Agar header me nahi hai to cookies se lo
-  const cookieToken = req.cookies?.refreshToken; // ya req.cookies?.refreshtoken
-
-  // 3. Jo available ho use karo
-  const token = bearerToken || cookieToken;
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    }
+  }
 
   if (!token) {
     return next(
       new AppError(
-        "Access denied. No token provided.",
+        "Access token missing",
         401,
         "UNAUTHORIZED"
       )
@@ -45,7 +42,10 @@ export const auth = (
   }
 
   try {
-    const decoded = jwt.verify(token, env.JWT_SECRET) as IAdminPayload;
+    const decoded = jwt.verify(
+      token,
+      env.JWT_SECRET
+    ) as IAdminPayload;
 
     req.admin = decoded;
 
@@ -53,13 +53,12 @@ export const auth = (
   } catch (error: any) {
     return next(
       new AppError(
-        error.message || "Invalid or expired token.",
+        "Invalid or expired access token",
         401,
         "UNAUTHORIZED"
       )
     );
   }
 };
-
 
 export default auth;

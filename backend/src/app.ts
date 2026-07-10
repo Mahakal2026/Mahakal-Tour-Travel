@@ -14,6 +14,11 @@ import { errorHandler } from "./middlewares/errorHandler";
 import bookingRoutes from "./modules/booking/booking.routes";
 import adminRoutes from "./modules/admin/admin.routes";
 import healthRoutes from "./modules/health/health.routes";
+import { publicRouter as vehiclePublicRouter, adminRouter as vehicleAdminRouter } from "./modules/vehicle/vehicle.routes";
+import { publicRouter as packagePublicRouter, adminRouter as packageAdminRouter } from "./modules/package/package.routes";
+import { publicRouter as reviewPublicRouter, adminRouter as reviewAdminRouter } from "./modules/review/review.routes";
+import fareRoutes from "./modules/vehicle/fare.routes";
+
 
 const app = express();
 
@@ -70,6 +75,16 @@ app.use(morgan("combined", { stream: morganStream }));
 app.use("/api/health", healthRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/admin", adminRoutes);
+
+// New Feature Modules
+app.use("/api/vehicles", vehiclePublicRouter);
+app.use("/api/admin/vehicles", vehicleAdminRouter);
+app.use("/api/packages", packagePublicRouter);
+app.use("/api/admin/packages", packageAdminRouter);
+app.use("/api/reviews", reviewPublicRouter);
+app.use("/api/admin/reviews", reviewAdminRouter);
+app.use("/api/fare", fareRoutes);
+
 
 // Catch-all 404 Route handler for unrecognized endpoints
 app.use((req, res) => {

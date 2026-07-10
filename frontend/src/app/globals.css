@@ -18,6 +18,14 @@
   --color-saffron-800: #9a3412;
   --color-saffron-900: #7c2d12;
 
+  /* — Brand Primary Gradient Endpoints — */
+  --color-brand-orange-start: #b91c1c;
+  --color-brand-orange-end: #f97316;
+
+  /* — WhatsApp Green Color — */
+  --color-whatsapp-green: #25d366;
+  --color-whatsapp-green-hover: #20ba5a;
+
   /* — Amber Gold (Accent) — */
   --color-amber-gold: #d97706;
 

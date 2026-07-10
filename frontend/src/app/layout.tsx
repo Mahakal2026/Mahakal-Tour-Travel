@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Cinzel } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-import LayoutWrapper from "@/components/layout/LayoutWrapper";
+import Providers from "./providers";
 
 const helvetica = localFont({
   src: "../../public/Helvetica.ttf",
@@ -145,8 +145,6 @@ const jsonLd = {
   ],
 };
 
-import Providers from "./providers";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -171,7 +169,7 @@ export default function RootLayout({
             Skip to main content
           </a>
 
-          <LayoutWrapper>{children}</LayoutWrapper>
+          {children}
         </Providers>
       </body>
     </html>

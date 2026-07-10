@@ -50,6 +50,18 @@ export const errorHandler = (
     message = "Resource already exists";
     details = err.keyValue;
   }
+  // 5. Multer and Upload Errors
+  else if (err.name === "MulterError" || err.code === "UPLOAD_ERROR" || err.code === "LIMIT_FILE_SIZE") {
+    statusCode = 400;
+    code = "UPLOAD_ERROR";
+    message = err.message || "File upload error";
+  }
+  // 6. Cloud service/Upload service failure
+  else if (err.code === "UPLOAD_FAILED") {
+    statusCode = 500;
+    code = "UPLOAD_FAILED";
+    message = err.message || "Image upload service failed";
+  }
 
   // Log error using Winston logger
   const reqInfo = `${req.method} ${req.originalUrl} [ReqID: ${req.id || 'N/A'}]`;

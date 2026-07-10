@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { useAdminAuth } from "@/context/AdminAuthContext";
 import { apiClient } from "@/lib/api";
 import { Lock, Mail, Loader2 } from "lucide-react";
 
@@ -12,7 +11,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login } = useAuth();
+  const { login } = useAdminAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,12 +19,17 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const res = await apiClient.post("/admin/login", { email, password });
-      if (res.data.success) {
-        login(res.data.token);
+      const res = await apiClient.post("/admin/login", { email, password }, { withCredentials: true });
+      
+      const token = res.data?.data?.token || res.data?.token;
+      if (token) {
+        await login(token);
+      } else {
+        setError("Invalid credentials");
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
+      console.error("Login failed:", err);
+      setError("Invalid credentials");
     } finally {
       setIsSubmitting(false);
     }
@@ -43,7 +47,7 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 text-center border border-red-100 font-medium">
+          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 text-center border border-red-100 font-bold">
             {error}
           </div>
         )}

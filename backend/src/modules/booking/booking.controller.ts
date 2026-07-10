@@ -11,7 +11,7 @@ export const createBooking = async (req: Request, res: Response): Promise<void> 
 
   logger.info(
     `✨ [ReqID: ${req.id}] New Booking Inquiry logged: ID ${newInquiry._id} for ${
-      newInquiry.name || "Anonymous"
+      newInquiry.name || "Anonymous"  
     }`
   );
 
