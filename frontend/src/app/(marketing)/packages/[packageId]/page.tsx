@@ -59,30 +59,29 @@ export default async function PackageDetailsPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      
-      <div className="max-w-5xl mx-auto">
+
+      <div className="max-w-5xl  mx-auto">
         <AnimatedSection>
           <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200 flex flex-col md:flex-row">
             {/* Image Section */}
-            <div className="md:w-1/2 relative min-h-[300px] md:min-h-full bg-slate-900">
+            <div className="relative w-full md:w-1/2 h-64 sm:h-80 md:h-[420px] lg:h-[500px] overflow-hidden rounded-2xl">
               {pkg.image ? (
-                <div
-                  className="absolute inset-0 bg-cover bg-center opacity-90"
-                  style={{
-                    backgroundImage: `url('${pkg.image}')`,
-                  }}
+                <img
+                  src={pkg.image}
+                  alt={pkg.title}
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-slate-400 font-bold bg-slate-800">
+                <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-400 font-semibold">
                   No Image Available
                 </div>
               )}
-              <div className="absolute top-6 left-6 bg-saffron-600/90 backdrop-blur-md text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg z-10">
-                <Clock className="w-3.5 h-3.5" />
+
+              <div className="absolute top-4 left-4 md:top-6 md:left-6 bg-saffron-600/90 backdrop-blur-md text-white px-3 py-2 md:px-4 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg">
+                <Clock className="w-4 h-4" />
                 {pkg.duration}
               </div>
             </div>
-
             {/* Content Section */}
             <div className="md:w-1/2 p-8 md:p-12 flex flex-col">
               <span className="text-saffron-600 font-extrabold uppercase tracking-widest text-xs mb-2 block">
@@ -117,7 +116,7 @@ export default async function PackageDetailsPage({ params }: PageProps) {
                   </span>
                   <span className="text-4xl font-extrabold text-saffron-600 font-cinzel">{priceStr}</span>
                 </div>
-                
+
                 <BookPackageButtonWrapper pkg={pkg} />
               </div>
             </div>

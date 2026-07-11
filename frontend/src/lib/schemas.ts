@@ -23,8 +23,9 @@ export const bookingFormSchema = z.object({
     .max(200, "Location too long"),
   drop: z
     .string()
-    .min(2, "Drop-off location is required")
-    .max(200, "Location too long"),
+    .max(200, "Location too long")
+    .optional()
+    .or(z.literal("")),
   date: z.string().min(1, "Travel date is required"),
   vehicle: z.string().min(1, "Please select a vehicle"),
 });

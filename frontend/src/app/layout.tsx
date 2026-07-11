@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Cinzel } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import Providers from "./providers";
@@ -8,13 +7,6 @@ const helvetica = localFont({
   src: "../../public/Helvetica.ttf",
   variable: "--font-helvetica",
   display: "swap",
-});
-
-const cinzel = Cinzel({
-  variable: "--font-cinzel-decorative",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -153,7 +145,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${helvetica.variable} ${cinzel.variable} scroll-smooth`}
+      className={`${helvetica.variable} scroll-smooth`}
       data-scroll-behavior="smooth"
     >
       <head>

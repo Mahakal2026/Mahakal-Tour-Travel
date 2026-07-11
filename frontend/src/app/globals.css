@@ -31,7 +31,7 @@
 
   /* — Typography — */
   --font-sans: var(--font-helvetica), ui-sans-serif, system-ui, sans-serif;
-  --font-cinzel: var(--font-cinzel-decorative), serif;
+  --font-cinzel: var(--font-helvetica), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ============================================
