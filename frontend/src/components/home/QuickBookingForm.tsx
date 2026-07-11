@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { 
-  User, 
-  MapPin, 
-  Calendar, 
-  Users, 
-  Navigation, 
-  Plane, 
-  Map, 
+import {
+  User,
+  MapPin,
+  Calendar,
+  Users,
+  Navigation,
+  Plane,
+  Map,
   ChevronDown
 } from "lucide-react";
 import { CgSpinner } from "react-icons/cg";
@@ -68,13 +68,13 @@ export default function QuickBookingForm({ vehicles = [] }: { vehicles?: Vehicle
 
           const data = await response.json();
           const addr = data.address;
-          
+
           const street = addr.road || addr.suburb || addr.neighbourhood || "";
           const city = addr.city || addr.town || addr.village || "";
           const state = addr.state ? `, ${addr.state}` : "";
-          
-          const cleanAddress = street 
-            ? `${street}, ${city}` 
+
+          const cleanAddress = street
+            ? `${street}, ${city}`
             : `${city}${state}`;
 
           setValue("pickup", cleanAddress || `My Location (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`);

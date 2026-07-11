@@ -35,7 +35,6 @@ export const NAV_LINKS = [
   { label: "Fare Calculator", href: "/#calculator" },
   { label: "Our Taxi Fleet", href: "/#fleet" },
   { label: "Tour Packages", href: "/#packages" },
-  { label: "Contact", href: "/contact" },
 ] as const;
 
 export type TripType = "local" | "outstation-round" | "package-inquiry" | "general-contact";

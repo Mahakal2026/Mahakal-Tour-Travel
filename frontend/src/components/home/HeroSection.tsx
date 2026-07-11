@@ -63,7 +63,7 @@ export default function HeroSection({ vehicles = [] }: { vehicles?: any[] }) {
             >
               Book Ride <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link 
+            <Link
               href="/#packages"
               className="bg-white/5 hover:bg-white/10 text-white border border-white/10 hover:border-white/20 font-bold px-8 py-3.5 rounded-xl transition-all duration-300 touch-target cursor-pointer"
             >

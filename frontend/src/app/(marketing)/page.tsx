@@ -6,7 +6,6 @@ import PackageShowcase from "@/components/home/PackageShowcase";
 import Testimonials from "@/components/sections/Testimonials";
 import FAQ from "@/components/home/FAQ";
 import FinalCTA from "@/components/home/FinalCTA";
-import ContactSection from "@/components/home/ContactSection";
 
 async function getHomeData() {
   const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -44,7 +43,6 @@ export default async function Home() {
       <PackageShowcase packages={activePackages} />
       <FinalCTA />
       <Testimonials testimonials={reviews} />
-      <ContactSection />
       <FAQ />
     </div>
   );
