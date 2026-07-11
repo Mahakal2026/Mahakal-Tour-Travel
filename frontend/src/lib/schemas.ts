@@ -58,7 +58,7 @@ export type ContactFormData = z.infer<typeof contactFormSchema>;
  */
 export const fareCalculatorSchema = z.object({
   vehicle: z.string(),
-  tripType: z.enum(["local", "outstation-round", "one-way"]),
+  tripType: z.enum(["local", "outstation-round"]),
   distance: z.number().min(1).optional(),
   days: z.number().min(1).max(30).optional(),
 });

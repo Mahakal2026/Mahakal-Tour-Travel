@@ -17,6 +17,7 @@
   --color-saffron-700: #c2410c;
   --color-saffron-800: #9a3412;
   --color-saffron-900: #7c2d12;
+  --color-saffron-950: #431407;
 
   /* — Brand Primary Gradient Endpoints — */
   --color-brand-orange-start: #b91c1c;
@@ -30,8 +31,8 @@
   --color-amber-gold: #d97706;
 
   /* — Typography — */
-  --font-sans: var(--font-helvetica), ui-sans-serif, system-ui, sans-serif;
-  --font-cinzel: var(--font-helvetica), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter', var(--font-helvetica), ui-sans-serif, system-ui, sans-serif;
+  --font-cinzel: 'Cinzel', var(--font-helvetica), serif;
 }
 
 /* ============================================

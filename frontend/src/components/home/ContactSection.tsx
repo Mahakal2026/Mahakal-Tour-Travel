@@ -47,7 +47,7 @@ export default function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-900 text-slate-300">
+    <section id="contact" className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-900 text-slate-300">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Info Column */}
@@ -57,7 +57,7 @@ export default function ContactSection() {
                 <span className="text-saffron-500 font-bold uppercase tracking-widest text-xs">
                   Stay Connected
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-1 font-cinzel">
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-1 font-cinzel">
                   Contact Office
                 </h2>
               </div>
@@ -119,8 +119,8 @@ export default function ContactSection() {
 
           {/* Form Column */}
           <AnimatedSection className="lg:col-span-7" delay={0.15}>
-            <div className="bg-slate-800 p-5 sm:p-6 rounded-xl border border-slate-700 space-y-3">
-              <h3 className="text-lg font-bold text-white font-cinzel">Send Us a Direct Message</h3>
+            <div className="bg-slate-800 p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-4">
+              <h3 className="text-xl font-bold text-white font-cinzel">Send Us a Direct Message</h3>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>

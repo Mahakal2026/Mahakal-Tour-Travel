@@ -3,7 +3,7 @@ import { apiClient } from "./api";
 
 export interface BookingPayload {
   vehicle: any; // Can be a Vehicle object or vehicle string name
-  tripType: "local" | "outstation-round" | "package-inquiry" | "general-contact";
+  tripType: "local" | "outstation-round" | "one-way" | "package-inquiry" | "general-contact";
   km?: number;
   days?: number;
   packageId?: string;
@@ -74,6 +74,12 @@ export async function buildAndSendBooking({
       }
     }
     routeOrPackage = `Outstation Round-Trip - ${km}km / ${days} days (${vehicleName})`;
+  } else if (tripType === "one-way") {
+    messageText += `*Trip Type:* One-Way Drop\n`;
+    messageText += `*Vehicle Model:* ${vehicleName}\n`;
+    messageText += `*Distance:* ${km} Km\n`;
+    messageText += `*Estimated Fare:* ₹${price.toLocaleString("en-IN")}\n`;
+    routeOrPackage = `One-Way Drop - ${km}km (${vehicleName})`;
   } else if ((tripType as string) === "general-contact") {
     messageText += `*Trip Type:* General Inquiry\n`;
     messageText += `*Message:* ${packageName || ""}\n`;
@@ -96,7 +102,14 @@ export async function buildAndSendBooking({
       name: customerName,
       phone: cleanPhone || undefined,
       vehicle: vehicleType,
-      tripType: tripType === "package-inquiry" ? "package-inquiry" : tripType === "local" ? "local" : "outstation-round",
+      tripType:
+        tripType === "package-inquiry"
+          ? "package-inquiry"
+          : tripType === "local"
+          ? "local"
+          : tripType === "one-way"
+          ? "one-way"
+          : "outstation-round",
       routeOrPackage,
       estimatedFare: price,
       rawMessage: messageText,

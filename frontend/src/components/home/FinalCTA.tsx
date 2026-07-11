@@ -7,7 +7,7 @@ import AnimatedSection from "@/components/ui/AnimatedSection";
 
 export default function FinalCTA() {
   return (
-    <section className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <section className="bg-gradient-to-r from-slate-900 via-slate-850 to-saffron-950 text-white py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 opacity-5">
         <div

@@ -11,7 +11,7 @@ interface FareCalculatorProps {
   vehicles: Vehicle[];
 }
 
-interface FareBreakdown {
+interface FareBreakdown { 
   basePrice?: number;
   excessKmCharge?: number;
   isExtrapolated?: boolean;
@@ -45,6 +45,15 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
     if (!selectedVehicle?._id) return;
 
     const calculateFare = async () => {
+      // Validate parameters to prevent 400 Bad Request during input typing
+      if (tripType === "outstation-round") {
+        if (!km || km <= 0 || !days || days <= 0 || isNaN(km) || isNaN(days)) {
+          setPrice(null);
+          setBreakdown(null);
+          return;
+        }
+      }
+
       setLoading(true);
       setError(null);
       try {
@@ -90,7 +99,7 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
     await buildAndSendBooking({
       vehicle: selectedVehicle,
       tripType,
-      km: tripType === "outstation-round" ? km : undefined,
+      km: tripType !== "local" ? km : undefined,
       days: tripType === "outstation-round" ? days : undefined,
       price: price,
       breakdown: breakdown || undefined,
@@ -100,7 +109,7 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
   };
 
   return (
-    <section id="calculator" className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-b border-slate-200">
+    <section id="calculator" className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-100">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-10">
           <span className="block text-xs font-bold uppercase tracking-widest text-saffron-600 mb-2">Estimate Your Journey</span>
@@ -110,7 +119,7 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
 
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
           {/* Header */}
-          <div className="bg-gradient-to-r from-brand-orange-start to-brand-orange-end p-8 text-white text-center md:text-left md:flex justify-between items-center">
+          <div className="bg-gradient-to-r from-saffron-600 to-amber-gold p-8 text-white text-center md:text-left md:flex justify-between items-center">
             <div>
               <h3 className="text-2xl font-bold tracking-tight font-cinzel">Dynamic Fare Calculator</h3>
               <p className="text-orange-100 text-xs mt-1">Provide details to calculate transparent estimates</p>
@@ -130,18 +139,18 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
                 <button
                   type="button"
                   onClick={() => setTripType("local")}
-                  className={`py-3 px-4 rounded-xl font-bold text-sm transition-all cursor-pointer ${
+                  className={`py-3 px-2 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
                     tripType === "local"
                       ? "bg-white text-saffron-700 shadow-md border border-slate-100"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  Local Sightseeing (8h/80km)
+                  Local (8h / 80km)
                 </button>
                 <button
                   type="button"
                   onClick={() => setTripType("outstation-round")}
-                  className={`py-3 px-4 rounded-xl font-bold text-sm transition-all cursor-pointer ${
+                  className={`py-3 px-2 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
                     tripType === "outstation-round"
                       ? "bg-white text-saffron-700 shadow-md border border-slate-100"
                       : "text-slate-600 hover:text-slate-900"
@@ -178,10 +187,10 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
                     <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">
                       Local Details
                     </label>
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-600 flex items-start gap-3">
+                    <div className="bg-saffron-50 border border-saffron-100 rounded-xl p-3 text-xs text-saffron-800 flex items-start gap-3">
                       <Info className="w-4 h-4 text-saffron-600 mt-0.5 flex-shrink-0" />
                       <span>
-                        Local package covers standard city transit up to 8 Hours and 80 Kilometers. Excess usage is charged dynamically per hour/km.
+                        Fixed package includes 8 Hours and 80 Kilometers. Excess kilometers will be charged dynamically per kilometer.
                       </span>
                     </div>
                   </div>
@@ -191,13 +200,16 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
                       <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">
                         Estimated Distance (in Km)
                       </label>
-                      <input
-                        type="number"
-                        min={1}
-                        value={km}
-                        onChange={(e) => setKm(Math.max(1, parseInt(e.target.value) || 0))}
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:bg-white text-sm font-semibold"
-                      />
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 font-bold text-xs">KM</span>
+                        <input
+                          type="number"
+                          min={1}
+                          value={km}
+                          onChange={(e) => setKm(Math.max(1, parseInt(e.target.value) || 0))}
+                          className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:bg-white text-sm font-semibold"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -293,7 +305,7 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
               {price !== null && !loading && (
                 <button
                   onClick={handleBook}
-                  className="w-full md:w-auto bg-gradient-to-r from-brand-orange-start to-brand-orange-end hover:brightness-110 text-white font-bold px-8 py-4 rounded-xl shadow-lg shadow-orange-500/10 transition-all flex items-center justify-center gap-2 cursor-pointer text-sm tracking-wide uppercase"
+                  className="w-full md:w-auto bg-saffron-600 hover:bg-saffron-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-saffron-500/10 transition-all flex items-center justify-center gap-2 cursor-pointer text-sm"
                 >
                   <CalendarCheck className="w-4 h-4" />
                   Book At This Price

@@ -7,7 +7,30 @@ import AnimatedSection from "@/components/ui/AnimatedSection";
 import { Vehicle } from "@/types";
 
 export default function FleetPreview({ vehicles = [] }: { vehicles?: Vehicle[] }) {
-  const displayVehicles = vehicles.filter((v) => v.isActive).slice(0, 3); // show 3 on home page
+  const displayVehicles = vehicles.filter((v) => v.isActive).slice(0, 6); // show up to 6 on home page
+
+  const getBadge = (name: string, index: number) => {
+    const lowercaseName = name.toLowerCase();
+    if (lowercaseName.includes("hatchback") || lowercaseName.includes("wagon") || lowercaseName.includes("swift")) {
+      return { text: "Popular", bg: "bg-saffron-600" };
+    }
+    if (lowercaseName.includes("dzire") || lowercaseName.includes("sedan") || lowercaseName.includes("amaze")) {
+      return { text: "Best Seller", bg: "bg-emerald-600" };
+    }
+    if (lowercaseName.includes("ertiga") || lowercaseName.includes("suv")) {
+      return { text: "Family Choice", bg: "bg-saffron-600" };
+    }
+    if (lowercaseName.includes("innova") || lowercaseName.includes("crysta")) {
+      return { text: "Elite", bg: "bg-amber-500" };
+    }
+    if (lowercaseName.includes("tempo") || lowercaseName.includes("traveller")) {
+      return { text: "Mega Group", bg: "bg-purple-600" };
+    }
+    if (index === 0) return { text: "Popular", bg: "bg-saffron-600" };
+    if (index === 1) return { text: "Best Seller", bg: "bg-emerald-600" };
+    if (index === 2) return { text: "Family Choice", bg: "bg-saffron-600" };
+    return { text: "Elite", bg: "bg-amber-500" };
+  };
 
   return (
     <section id="fleet" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
@@ -26,21 +49,26 @@ export default function FleetPreview({ vehicles = [] }: { vehicles?: Vehicle[] }
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayVehicles.map((vehicle, index) => (
-              <AnimatedSection key={vehicle._id || vehicle.name} delay={index * 0.1}>
-                <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-2xl transition-all flex flex-col h-full group">
-                  {/* Image */}
-                  <div className="relative bg-gradient-to-b from-slate-100 to-slate-50/50 h-52 overflow-hidden flex items-center justify-center">
-                    <img
-                      src={
-                        vehicle.image ||
-                        "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80"
-                      }
-                      alt={vehicle.name}
-                      className="w-full h-full object-contain p-4 group-hover:scale-105 transition-all duration-500"
-                      loading="lazy"
-                    />
-                  </div>
+            {displayVehicles.map((vehicle, index) => {
+              const badge = getBadge(vehicle.name, index);
+              return (
+                <AnimatedSection key={vehicle._id || vehicle.name} delay={index * 0.1}>
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden hover:shadow-2xl transition-all flex flex-col h-full group">
+                    {/* Image */}
+                    <div className="relative bg-slate-900 h-52 overflow-hidden flex items-center justify-center">
+                      <div className="absolute top-4 left-4 bg-saffron-600 text-white font-bold text-xs uppercase px-3 py-1.5 rounded-full shadow z-10 class-badge-override" style={{ backgroundColor: badge.bg.includes("emerald") ? "#059669" : badge.bg.includes("purple") ? "#9333ea" : badge.bg.includes("amber") ? "#d97706" : "#ea580c" }}>
+                        {badge.text}
+                      </div>
+                      <img
+                        src={
+                          vehicle.image ||
+                          "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80"
+                        }
+                        alt={vehicle.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-90 p-0"
+                        loading="lazy"
+                      />
+                    </div>
 
                   {/* Content */}
                   <div className="p-6 flex flex-col flex-grow">
@@ -89,7 +117,7 @@ export default function FleetPreview({ vehicles = [] }: { vehicles?: Vehicle[] }
                   </div>
                 </div>
               </AnimatedSection>
-            ))}
+            )})}
           </div>
         )}
       </div>

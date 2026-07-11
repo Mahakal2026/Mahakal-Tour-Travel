@@ -71,6 +71,13 @@ export const calculateFare = async (req: Request, res: Response): Promise<void> 
     // Build the fare breakdown object for the frontend breakdown display
     breakdown.basePrice = minAllowedKm * outstationRate;
     breakdown.excessKmCharge = Math.max(0, km - minAllowedKm) * outstationRate;
+  } else if (tripType === "one-way") {
+    if (!km || km <= 0) {
+      throw new AppError("km is required and must be greater than zero for one-way trip", 400, "BAD_REQUEST");
+    }
+    price = km * rateOutstation;
+    breakdown.basePrice = price;
+    breakdown.excessKmCharge = 0;
   } else {
     throw new AppError("Invalid trip type", 400, "BAD_REQUEST");
   }

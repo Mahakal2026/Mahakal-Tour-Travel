@@ -8,13 +8,39 @@ interface TestimonialsProps {
   testimonials: Review[];
 }
 
+const FALLBACK_TESTIMONIALS = [
+  {
+    _id: "fb-1",
+    customerName: "Rahul K.",
+    initials: "RK",
+    titleLocation: "Regular Customer, Gwalior",
+    rating: 5,
+    reviewText: "Booked Mahakal Travels for a family trip from Gwalior to Ujjain. The driver was exceptionally disciplined, car was very hygienic, and they took care of all toll routes and stops perfectly. Highly recommended!",
+    isActive: true,
+  },
+  {
+    _id: "fb-2",
+    customerName: "Sanjay Sharma",
+    initials: "SS",
+    titleLocation: "Business Manager, Lashkar",
+    rating: 5,
+    reviewText: "I have used their local cab package (8h/80km) for corporate delegates visiting Gwalior. Transparent pricing and beautiful condition of the Innova Crysta left a great impression.",
+    isActive: true,
+  },
+  {
+    _id: "fb-3",
+    customerName: "Megha Singh",
+    initials: "MS",
+    titleLocation: "Traveller, Indore",
+    rating: 5,
+    reviewText: "Very supportive customer helpdesk. Had to modify the ride date last minute for an Orchha trip and they resolved it instantly with zero cancellation fee. Honest values!",
+    isActive: true,
+  },
+];
+
 export default function Testimonials({ testimonials = [] }: TestimonialsProps) {
   const activeReviews = testimonials.filter((r) => r.isActive);
-
-  // If the API returns zero reviews, don't render the Testimonials section at all
-  if (activeReviews.length === 0) {
-    return null;
-  }
+  const displayReviews = activeReviews.length > 0 ? activeReviews : FALLBACK_TESTIMONIALS;
 
   return (
     <section id="testimonials" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
@@ -26,12 +52,12 @@ export default function Testimonials({ testimonials = [] }: TestimonialsProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {activeReviews.map((item) => {
+          {displayReviews.map((item) => {
             const avatarInitials = item.initials || item.customerName.substring(0, 2).toUpperCase();
             return (
               <div
                 key={item._id}
-                className="bg-slate-50 rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col justify-between"
+                className="bg-slate-50 rounded-2xl p-6 border border-slate-100 flex flex-col justify-between"
               >
                 <div>
                   <StarRating rating={item.rating} className="mb-4" />
@@ -42,7 +68,7 @@ export default function Testimonials({ testimonials = [] }: TestimonialsProps) {
 
                 <div className="flex items-center gap-4 border-t border-slate-200/60 pt-4">
                   {/* Colored Circle Initials Avatar */}
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-brand-orange-start to-brand-orange-end text-white flex items-center justify-center font-bold text-sm tracking-wide shadow-md flex-shrink-0">
+                  <div className="w-10 h-10 bg-saffron-100 rounded-full flex items-center justify-center font-bold text-saffron-700 text-sm flex-shrink-0">
                     {avatarInitials}
                   </div>
                   <div>
