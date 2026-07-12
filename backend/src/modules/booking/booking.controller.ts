@@ -9,7 +9,7 @@ import { sendSuccess } from "../../utils/apiResponse";
 export const createBooking = async (req: Request, res: Response): Promise<void> => {
   const newInquiry = await BookingService.createBooking(req.body);
 
-  logger.info(
+  logger.debug(
     `✨ [ReqID: ${req.id}] New Booking Inquiry logged: ID ${newInquiry._id} for ${
       newInquiry.name || "Anonymous"  
     }`
@@ -48,7 +48,7 @@ export const updateBookingStatus = async (req: Request, res: Response): Promise<
 
   const updatedBooking = await BookingService.updateBookingStatus(id as string, status as string);
 
-  logger.info(`✅ [ReqID: ${req.id}] Booking Inquiry ID ${id} status updated to ${status}`);
+  logger.debug(`✅ [ReqID: ${req.id}] Booking Inquiry ID ${id} status updated to ${status}`);
 
   sendSuccess(res, {
     message: "Booking status updated successfully",

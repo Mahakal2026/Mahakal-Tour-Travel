@@ -8,7 +8,7 @@ import { logger } from "../../config/logger";
  */
 export const createPackage = async (req: Request, res: Response): Promise<void> => {
   const tourPackage = await PackageService.createPackage(req.body);
-  logger.info(`📦 [ReqID: ${req.id}] Package created: ID ${tourPackage._id} - ${tourPackage.name}`);
+  logger.debug(`📦 [ReqID: ${req.id}] Package created: ID ${tourPackage._id} - ${tourPackage.name}`);
   sendSuccess(res, tourPackage, 201);
 };
 
@@ -43,7 +43,7 @@ export const getPackageById = async (req: Request, res: Response): Promise<void>
 export const updatePackage = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const tourPackage = await PackageService.updatePackage(id as string, req.body);
-  logger.info(`📦 [ReqID: ${req.id}] Package updated: ID ${id} - ${tourPackage.name}`);
+  logger.debug(`📦 [ReqID: ${req.id}] Package updated: ID ${id} - ${tourPackage.name}`);
   sendSuccess(res, tourPackage);
 };
 
@@ -53,6 +53,6 @@ export const updatePackage = async (req: Request, res: Response): Promise<void> 
 export const deletePackage = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   await PackageService.deletePackage(id as string);
-  logger.info(`🗑️ [ReqID: ${req.id}] Package deleted: ID ${id}`);
+  logger.debug(`🗑️ [ReqID: ${req.id}] Package deleted: ID ${id}`);
   sendSuccess(res, { message: "Package deleted successfully" });
 };

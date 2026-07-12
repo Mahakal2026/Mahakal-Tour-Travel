@@ -20,7 +20,7 @@ export const loginAdmin = async (req: Request, res: Response): Promise<void> => 
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
-  logger.info(`🔑 [ReqID: ${req.id}] Admin signed in: ${result.admin.email}`);
+  logger.debug(`🔑 [ReqID: ${req.id}] Admin signed in: ${result.admin.email}`);
 
   // Return flat response to support legacy frontend res.data.token syntax
   res.status(200).json({
@@ -70,7 +70,7 @@ export const logoutAdmin = async (req: Request, res: Response): Promise<void> =>
     path: "/",
   });
 
-  logger.info(`🔑 [ReqID: ${req.id}] Admin logged out: ${req.admin?.email}`);
+  logger.debug(`🔑 [ReqID: ${req.id}] Admin logged out: ${req.admin?.email}`);
 
   sendSuccess(res, {
     message: "Logout successful",

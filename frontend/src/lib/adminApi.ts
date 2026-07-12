@@ -3,6 +3,9 @@ import axios from "axios";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
 
 let accessToken = "";
+if (typeof window !== "undefined") {
+  accessToken = localStorage.getItem("admin_token") || "";
+}
 
 export const setAccessToken = (token: string) => {
   accessToken = token;
@@ -48,6 +51,9 @@ adminApi.interceptors.response.use(
 
         const newToken = refreshResponse.data?.data?.token || refreshResponse.data?.token;
         if (newToken) {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("admin_token", newToken);
+          }
           setAccessToken(newToken);
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return adminApi(originalRequest);
@@ -56,6 +62,7 @@ adminApi.interceptors.response.use(
         // Refresh token failed or expired
         setAccessToken("");
         if (typeof window !== "undefined") {
+          localStorage.removeItem("admin_token");
           // Fire event or redirect
           window.location.href = "/admin/login";
         }

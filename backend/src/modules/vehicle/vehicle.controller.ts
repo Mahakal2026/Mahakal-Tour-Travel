@@ -8,7 +8,7 @@ import { logger } from "../../config/logger";
  */
 export const createVehicle = async (req: Request, res: Response): Promise<void> => {
   const vehicle = await VehicleService.createVehicle(req.body);
-  logger.info(`🚗 [ReqID: ${req.id}] Vehicle created: ID ${vehicle._id} - ${vehicle.name}`);
+  logger.debug(`🚗 [ReqID: ${req.id}] Vehicle created: ID ${vehicle._id} - ${vehicle.name}`);
   sendSuccess(res, vehicle, 201);
 };
 
@@ -43,7 +43,7 @@ export const getVehicleById = async (req: Request, res: Response): Promise<void>
 export const updateVehicle = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const vehicle = await VehicleService.updateVehicle(id as string, req.body);
-  logger.info(`🚗 [ReqID: ${req.id}] Vehicle updated: ID ${id} - ${vehicle.name}`);
+  logger.debug(`🚗 [ReqID: ${req.id}] Vehicle updated: ID ${id} - ${vehicle.name}`);
   sendSuccess(res, vehicle);
 };
 
@@ -53,6 +53,6 @@ export const updateVehicle = async (req: Request, res: Response): Promise<void> 
 export const deleteVehicle = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   await VehicleService.deleteVehicle(id as string);
-  logger.info(`🗑️ [ReqID: ${req.id}] Vehicle deleted: ID ${id}`);
+  logger.debug(`🗑️ [ReqID: ${req.id}] Vehicle deleted: ID ${id}`);
   sendSuccess(res, { message: "Vehicle deleted successfully" });
 };

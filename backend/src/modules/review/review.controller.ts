@@ -8,7 +8,7 @@ import { logger } from "../../config/logger";
  */
 export const createReview = async (req: Request, res: Response): Promise<void> => {
   const review = await ReviewService.createReview(req.body);
-  logger.info(`📝 [ReqID: ${req.id}] Review created: ID ${review._id} by ${review.customerName}`);
+  logger.debug(`📝 [ReqID: ${req.id}] Review created: ID ${review._id} by ${review.customerName}`);
   sendSuccess(res, review, 201);
 };
 
@@ -43,7 +43,7 @@ export const getReviewById = async (req: Request, res: Response): Promise<void> 
 export const updateReview = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const review = await ReviewService.updateReview(id as string, req.body);
-  logger.info(`📝 [ReqID: ${req.id}] Review updated: ID ${id} by ${review.customerName}`);
+  logger.debug(`📝 [ReqID: ${req.id}] Review updated: ID ${id} by ${review.customerName}`);
   sendSuccess(res, review);
 };
 
@@ -53,6 +53,6 @@ export const updateReview = async (req: Request, res: Response): Promise<void> =
 export const deleteReview = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   await ReviewService.deleteReview(id as string);
-  logger.info(`🗑️ [ReqID: ${req.id}] Review deleted: ID ${id}`);
+  logger.debug(`🗑️ [ReqID: ${req.id}] Review deleted: ID ${id}`);
   sendSuccess(res, { message: "Review deleted successfully" });
 };
