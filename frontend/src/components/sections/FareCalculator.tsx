@@ -338,7 +338,7 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
                           • Base Outstation Tier Rate: <span className="font-bold text-slate-800">₹{breakdown.basePrice.toLocaleString("en-IN")}</span>
                         </div>
                       )}
-                      {breakdown?.excessKmCharge && breakdown.excessKmCharge > 0 && (
+                      {breakdown?.excessKmCharge !== undefined && breakdown.excessKmCharge > 0 && (
                         <div>
                           • Excess Kilometer Charge: <span className="font-bold text-slate-800">+ ₹{breakdown.excessKmCharge.toLocaleString("en-IN")}</span>
                         </div>
