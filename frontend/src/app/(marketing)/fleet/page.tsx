@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 async function getVehicles() {
-  const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
   try {
     const res = await fetch(`${url}/vehicles`, { next: { revalidate: 60 } });
     const json = await res.json();

@@ -12,7 +12,7 @@ interface PageProps {
 }
 
 async function getPackage(id: string) {
-  const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
   try {
     const res = await fetch(`${url}/packages/${id}`, { cache: "no-store" });
     if (!res.ok) return null;

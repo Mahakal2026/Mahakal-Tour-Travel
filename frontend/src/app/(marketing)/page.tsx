@@ -10,7 +10,7 @@ import FAQ from "@/components/home/FAQ";
 import FinalCTA from "@/components/home/FinalCTA";
 
 async function getHomeData() {
-  const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
   try {
     const [vehiclesRes, packagesRes, reviewsRes] = await Promise.all([
       fetch(`${url}/vehicles`, { cache: "no-store" }).then((res) => res.json()),

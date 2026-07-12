@@ -6,6 +6,7 @@ import { Vehicle } from "@/types";
 import CabSelect from "../ui/CabSelect";
 import { buildAndSendBooking } from "@/lib/whatsapp";
 import { apiClient } from "@/lib/api";
+import axios from "axios";
 
 interface FareCalculatorProps {
   vehicles: Vehicle[];
@@ -44,6 +45,8 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
   useEffect(() => {
     if (!selectedVehicle?._id) return;
 
+    const controller = new AbortController();
+
     const calculateFare = async () => {
       // Validate parameters to prevent 400 Bad Request during input typing
       if (tripType === "outstation-round") {
@@ -67,7 +70,11 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
           payload.days = days;
         }
 
-        const res = await apiClient.post("/fare/calculate", payload);
+        console.log("FareCalculator: Sending request to", apiClient.defaults.baseURL + "/fare/calculate", "with payload:", payload);
+        const res = await apiClient.post("/fare/calculate", payload, {
+          signal: controller.signal,
+        });
+        console.log("FareCalculator: Response received:", res.data);
         if (res.data?.success) {
           setPrice(res.data.data.price);
           setBreakdown(res.data.data.breakdown || null);
@@ -76,12 +83,18 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
           setBreakdown(res.data.breakdown || null);
         }
       } catch (err: any) {
+        if (axios.isCancel(err)) {
+          console.log("FareCalculator: Request aborted.");
+          return;
+        }
         console.error("Fare calculation error:", err);
         setError("Unable to calculate fare. Please try again.");
         setPrice(null);
         setBreakdown(null);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -89,7 +102,10 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
       calculateFare();
     }, 300); // Debounce to prevent multiple quick calls
 
-    return () => clearTimeout(delayDebounceFn);
+    return () => {
+      clearTimeout(delayDebounceFn);
+      controller.abort();
+    };
   }, [selectedVehicle?._id, tripType, km, days]);
 
   const handleBook = async () => {
