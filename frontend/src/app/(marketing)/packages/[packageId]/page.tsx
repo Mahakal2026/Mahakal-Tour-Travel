@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Clock, CircleCheck, MapPin, MessageCircle } from "lucide-react";
@@ -12,12 +14,15 @@ interface PageProps {
 async function getPackage(id: string) {
   const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   try {
-    const res = await fetch(`${url}/packages/${id}`, { next: { revalidate: 60 } });
+    const res = await fetch(`${url}/packages/${id}`, { cache: "no-store" });
     if (!res.ok) return null;
     const json = await res.json();
     return json?.data || json;
-  } catch (err) {
-    console.error("Single package fetch error:", err);
+  } catch (err: any) {
+    if (err.digest === "DYNAMIC_SERVER_USAGE" || err.message?.includes("Dynamic server usage")) {
+      throw err;
+    }
+    console.error("Single package fetch error:", err.message || err);
     return null;
   }
 }
@@ -50,7 +55,20 @@ export default async function PackageDetailsPage({ params }: PageProps) {
     notFound();
   }
 
-  const priceStr = `₹${pkg.price.toLocaleString("en-IN")}`;
+  let displayLabel = "";
+  let priceStr = "";
+
+  if (pkg.pricingType === "km") {
+    displayLabel = "Package Fare Starts";
+    priceStr = pkg.price > 0 ? `₹${pkg.price}/Km` : "Based on Km";
+  } else if (pkg.pricingType === "oneway") {
+    displayLabel = `${pkg.vehicleName || "Sedan"} One-Way`;
+    priceStr = `₹${pkg.price.toLocaleString("en-IN")}`;
+  } else {
+    displayLabel = `${pkg.vehicleName || "Sedan"} Car Price`;
+    priceStr = `₹${pkg.price.toLocaleString("en-IN")}`;
+  }
+
   const jsonLd = getTouristTripSchema(pkg);
 
   return (
@@ -64,12 +82,12 @@ export default async function PackageDetailsPage({ params }: PageProps) {
         <AnimatedSection>
           <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200 flex flex-col md:flex-row">
             {/* Image Section */}
-            <div className="relative w-full md:w-1/2 h-64 sm:h-80 md:h-[420px] lg:h-[500px] overflow-hidden rounded-2xl">
+            <div className="relative w-full md:w-1/2 h-64 sm:h-80 md:h-[420px] lg:h-[500px] overflow-hidden rounded-2xl bg-white flex items-center justify-center p-4">
               {pkg.image ? (
                 <img
                   src={pkg.image}
                   alt={pkg.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-400 font-semibold">
@@ -109,12 +127,22 @@ export default async function PackageDetailsPage({ params }: PageProps) {
                 </div>
               )}
 
-              <div className="mt-auto pt-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="mt-auto pt-10 flex flex-col sm:flex-row md:flex-col lg:flex-row items-center justify-between md:items-start lg:items-center gap-6">
                 <div>
                   <span className="text-xs text-slate-500 uppercase tracking-wider font-extrabold block mb-1">
-                    {pkg.priceLabel || "Package Price"}
+                    {displayLabel}
                   </span>
-                  <span className="text-4xl font-extrabold text-saffron-600 font-cinzel">{priceStr}</span>
+                  <span
+                    className={`font-extrabold text-saffron-600 font-cinzel ${
+                      priceStr.includes("Based")
+                        ? "text-xl sm:text-2xl"
+                        : pkg.pricingType === "km" && pkg.price === 12
+                        ? "text-3xl"
+                        : "text-3xl sm:text-4xl"
+                    }`}
+                  >
+                    {priceStr}
+                  </span>
                 </div>
 
                 <BookPackageButtonWrapper pkg={pkg} />

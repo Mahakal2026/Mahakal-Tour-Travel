@@ -36,7 +36,7 @@ export class PackageService {
    */
   public static async updatePackage(id: string, data: Partial<IPackage>): Promise<IPackage> {
     const tourPackage = await TourPackage.findByIdAndUpdate(id, data, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
     if (!tourPackage) {

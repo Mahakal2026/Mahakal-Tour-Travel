@@ -9,8 +9,8 @@ export const createBookingSchema = z.object({
     .refine(
       (val) => {
         if (!val) return true;
-        const cleanVal = val.replace(/[\s-]/g, "");
-        return /^(?:\+91|91)?[6-9]\d{9}$/.test(cleanVal);
+        const cleanVal = val.replace(/[^\d+]/g, "");
+        return /^(?:\+91|91|0)?[6-9]\d{9}$/.test(cleanVal);
       },
       {
         message: "Invalid Indian phone number format (must be a valid 10-digit number, optionally prefixed with +91 or 91)",

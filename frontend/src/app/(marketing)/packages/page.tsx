@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import React from "react";
 import { Metadata } from "next";
 import Packages from "@/components/sections/Packages";
@@ -10,11 +12,14 @@ export const metadata: Metadata = {
 async function getPackages() {
   const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   try {
-    const res = await fetch(`${url}/packages`, { next: { revalidate: 60 } });
+    const res = await fetch(`${url}/packages`, { cache: "no-store" });
     const json = await res.json();
     return json?.data || (Array.isArray(json) ? json : []);
-  } catch (err) {
-    console.error("Packages page fetch error:", err);
+  } catch (err: any) {
+    if (err.digest === "DYNAMIC_SERVER_USAGE" || err.message?.includes("Dynamic server usage")) {
+      throw err;
+    }
+    console.error("Packages page fetch error:", err.message || err);
     return [];
   }
 }

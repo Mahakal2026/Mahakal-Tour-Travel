@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import HeroSection from "@/components/home/HeroSection";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 import FareCalculator from "@/components/sections/FareCalculator";
@@ -11,9 +13,9 @@ async function getHomeData() {
   const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   try {
     const [vehiclesRes, packagesRes, reviewsRes] = await Promise.all([
-      fetch(`${url}/vehicles`, { next: { revalidate: 60 } }).then((res) => res.json()),
-      fetch(`${url}/packages`, { next: { revalidate: 60 } }).then((res) => res.json()),
-      fetch(`${url}/reviews`, { next: { revalidate: 60 } }).then((res) => res.json()),
+      fetch(`${url}/vehicles`, { cache: "no-store" }).then((res) => res.json()),
+      fetch(`${url}/packages`, { cache: "no-store" }).then((res) => res.json()),
+      fetch(`${url}/reviews`, { cache: "no-store" }).then((res) => res.json()),
     ]);
 
     return {
@@ -21,8 +23,11 @@ async function getHomeData() {
       packages: packagesRes?.data || (Array.isArray(packagesRes) ? packagesRes : []),
       reviews: reviewsRes?.data || (Array.isArray(reviewsRes) ? reviewsRes : []),
     };
-  } catch (err) {
-    console.error("Home page Server Component fetch error:", err);
+  } catch (err: any) {
+    if (err.digest === "DYNAMIC_SERVER_USAGE" || err.message?.includes("Dynamic server usage")) {
+      throw err;
+    }
+    console.error("Home page Server Component fetch error:", err.message || err);
     return { vehicles: [], packages: [], reviews: [] };
   }
 }

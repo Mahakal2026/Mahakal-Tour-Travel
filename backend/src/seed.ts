@@ -101,8 +101,10 @@ const packagesData = [
     name: "Gwalior Local Sightseeing",
     description: "Explore the royal city of Gwalior. Visit the majestic Gwalior Fort (Maan Singh Palace, Sahastrabahu Temple, Teli Ka Mandir), Jai Vilas Palace Museum, and Sun Temple.",
     duration: "1 Day (8 Hours)",
-    price: 1800,
+    price: 2000,
     priceLabel: "Flat Rate",
+    vehicleName: "Sedan",
+    pricingType: "flat",
     inclusions: [
       "Private Sedan Cab (8h / 80km)",
       "Fuel & Driver Allowances Included",
@@ -116,8 +118,10 @@ const packagesData = [
     name: "Orchha & Jhansi Heritage Tour",
     description: "Walk through the historic palaces and cenotaphs of Orchha (Jahangir Mahal, Raja Mahal, Ram Raja Temple) and the iconic Jhansi Fort.",
     duration: "1 Day",
-    price: 3500,
-    priceLabel: "Per Vehicle",
+    price: 0,
+    priceLabel: "Based on Km",
+    vehicleName: "Sedan",
+    pricingType: "km",
     inclusions: [
       "Private Sanitized Sedan",
       "Toll & State Tax Included",
@@ -125,6 +129,22 @@ const packagesData = [
       "Experienced Driver-cum-Guide"
     ],
     image: "/MarutiErtiga.png",
+    isActive: true
+  },
+  {
+    name: "Ujjain Holy Mahakal Darshan",
+    description: "Our namesake special trip. Seamless journey from Gwalior straight to Ujjain. Complete support for temple darshan, local holy site coordination, and safe return drops.",
+    duration: "2 Days / 1 Night",
+    price: 7999,
+    priceLabel: "One-Way Drop",
+    vehicleName: "Sedan",
+    pricingType: "oneway",
+    inclusions: [
+      "Safe, experienced night driving",
+      "Direct drop to Mahakal Temple corridor",
+      "Toll tax & state transport permits pre-handled"
+    ],
+    image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80",
     isActive: true
   }
 ];

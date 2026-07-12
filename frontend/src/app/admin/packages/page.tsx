@@ -66,6 +66,12 @@ export default function PackagesAdminPage() {
     if (data.priceLabel) {
       formData.append("priceLabel", data.priceLabel);
     }
+    if (data.vehicleName) {
+      formData.append("vehicleName", data.vehicleName);
+    }
+    if (data.pricingType) {
+      formData.append("pricingType", data.pricingType);
+    }
     formData.append("isActive", String(data.isActive));
     // Preprocess parseInclusions in backend splits by comma if string, or parses JSON.
     // We send as JSON string
@@ -161,14 +167,22 @@ export default function PackagesAdminPage() {
 
               <div className="p-5 border-t border-slate-100/60 bg-slate-50/20">
                 <div className="flex justify-between items-baseline mb-4">
-                  <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">Estimated fare</span>
+                  <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">
+                    {pkg.pricingType === "km" ? "Fare Starts" : "Estimated fare"}
+                  </span>
                   <div className="text-right">
                     <span className="text-lg font-extrabold text-saffron-600">
-                      ₹{pkg.price.toLocaleString("en-IN")}
+                      {pkg.pricingType === "km"
+                        ? pkg.price > 0 ? `₹${pkg.price}/Km` : "Based on Km"
+                        : `₹${pkg.price.toLocaleString("en-IN")}`}
                     </span>
-                    {pkg.priceLabel && (
-                      <span className="block text-[8px] text-slate-400 font-semibold">{pkg.priceLabel}</span>
-                    )}
+                    <span className="block text-[8px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">
+                      {pkg.pricingType === "flat"
+                        ? `${pkg.vehicleName || "Sedan"} Car Price`
+                        : pkg.pricingType === "oneway"
+                        ? `${pkg.vehicleName || "Sedan"} One-Way`
+                        : "Km Based Calculations"}
+                    </span>
                   </div>
                 </div>
 

@@ -93,8 +93,8 @@ export async function buildAndSendBooking({
   }
   messageText += `\nPlease confirm availability. Thank you!`;
 
-  // Clean phone number for validator (remove spaces, -, etc.)
-  const cleanPhone = customerPhone.replace(/[\s-]/g, "");
+  // Clean phone number for validator (remove all non-digit and non-plus characters)
+  const cleanPhone = customerPhone.replace(/[^\d+]/g, "");
 
   // 2. Fire non-blocking POST to /api/bookings
   apiClient
@@ -109,6 +109,8 @@ export async function buildAndSendBooking({
           ? "local"
           : tripType === "one-way"
           ? "one-way"
+          : tripType === "general-contact"
+          ? "general-contact"
           : "outstation-round",
       routeOrPackage,
       estimatedFare: price,
@@ -154,7 +156,7 @@ export async function sendBookingInquiry(payload: {
   apiClient
     .post("/bookings", {
       name: payload.name,
-      phone: payload.phone ? payload.phone.replace(/[\s-]/g, "") : undefined,
+      phone: payload.phone ? payload.phone.replace(/[^\d+]/g, "") : undefined,
       vehicle: payload.vehicle,
       tripType: payload.tripType === "one-way" ? "outstation-round" : payload.tripType,
       routeOrPackage: payload.routeOrPackage,

@@ -21,6 +21,8 @@ export const createPackageSchema = z.object({
   duration: z.string().trim().min(1, "Duration is required"),
   price: z.coerce.number().min(0, "Price must be 0 or greater"),
   priceLabel: z.string().trim().optional(),
+  vehicleName: z.string().trim().optional(),
+  pricingType: z.enum(["flat", "km", "oneway"]).optional(),
   inclusions: z.preprocess(
     parseInclusions,
     z

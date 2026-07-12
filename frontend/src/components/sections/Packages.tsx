@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { FaClock, FaTags, FaWhatsapp } from "react-icons/fa";
 import { Package } from "@/types";
-import { buildAndSendBooking } from "@/lib/whatsapp";
+import { sendBookingInquiry } from "@/lib/whatsapp";
 
 interface PackagesProps {
   packages: Package[];
@@ -13,26 +13,38 @@ interface PackagesProps {
 export default function Packages({ packages = [] }: PackagesProps) {
   const activePackages = packages.filter((p) => p.isActive);
 
-  const isFixedPrice = (label?: string) => {
-    if (!label) return true; // Default to true if no conditional label exists
-    const lower = label.toLowerCase();
-    return !(
-      lower.includes("start") ||
-      lower.includes("from") ||
-      lower.includes("onward") ||
-      lower.includes("estimate") ||
-      lower.includes("approx")
-    );
-  };
-
   const handleBookPackage = async (pkg: Package) => {
-    await buildAndSendBooking({
-      vehicle: pkg, // can pass package inside vehicle structure
+    let formattedMessage = "";
+    let rateText = "";
+
+    if (pkg.pricingType === "km") {
+      rateText = pkg.price > 0 ? `₹${pkg.price}/Km` : "Based on Km";
+      formattedMessage = `Hello Mahakal Tour & Travels, I would like to get a custom quote for the package.\n\n` +
+        `*Package Details:*\n` +
+        `• *Package Name:* ${pkg.name}\n` +
+        `• *Duration:* ${pkg.duration}\n` +
+        `• *Estimated Rate:* ${rateText}\n\n` +
+        `Please confirm availability and share details. Thank you!`;
+    } else {
+      rateText = `₹${pkg.price.toLocaleString("en-IN")}`;
+      formattedMessage = `Hello Mahakal Tour & Travels, I would like to book a cab package.\n\n` +
+        `*Package Details:*\n` +
+        `• *Package Name:* ${pkg.name}\n` +
+        `• *Duration:* ${pkg.duration}\n` +
+        `• *Price:* ${rateText}\n\n` +
+        `Please confirm availability. Thank you!`;
+    }
+
+    await sendBookingInquiry({
+      name: "Valued Customer",
+      vehicle: "sedan", // default
       tripType: "package-inquiry",
-      packageName: pkg.name,
-      price: pkg.price,
+      routeOrPackage: `${pkg.name} (${pkg.duration})`,
+      estimatedFare: pkg.pricingType === "km" ? undefined : pkg.price,
+      messageText: formattedMessage,
     });
   };
+
 
   return (
     <section id="packages" className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-slate-200">
@@ -50,7 +62,7 @@ export default function Packages({ packages = [] }: PackagesProps) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {activePackages.map((p) => {
-              const fixed = isFixedPrice(p.priceLabel);
+              const fixed = p.pricingType !== "km";
               return (
                 <div
                   key={p._id}
@@ -110,12 +122,31 @@ export default function Packages({ packages = [] }: PackagesProps) {
                           <FaTags className="text-slate-300" /> Cost Estimate
                         </span>
                         <div className="text-right">
-                          {!fixed && <span className="text-[10px] text-slate-500 font-bold block">Starting from</span>}
-                          <span className="text-2xl font-extrabold text-slate-950">
-                            ₹{p.price.toLocaleString("en-IN")}
-                          </span>
-                          {p.priceLabel && (
-                            <span className="text-[10px] text-slate-500 font-semibold block">{p.priceLabel}</span>
+                          {p.pricingType === "km" ? (
+                            <>
+                              <span className="text-[10px] text-slate-500 font-bold block">Package Fare Starts</span>
+                              <span className="text-xl font-extrabold text-saffron-600">
+                                {p.price > 0 ? `₹${p.price}/Km` : "Based on Km"}
+                              </span>
+                            </>
+                          ) : p.pricingType === "oneway" ? (
+                            <>
+                              <span className="text-[10px] text-slate-500 font-bold block">
+                                {p.vehicleName || "Sedan"} One-Way
+                              </span>
+                              <span className="text-2xl font-extrabold text-slate-950">
+                                ₹{p.price.toLocaleString("en-IN")}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-[10px] text-slate-500 font-bold block">
+                                {p.vehicleName || "Sedan"} Car Price
+                              </span>
+                              <span className="text-2xl font-extrabold text-slate-950">
+                                ₹{p.price.toLocaleString("en-IN")}
+                              </span>
+                            </>
                           )}
                         </div>
                       </div>
@@ -133,7 +164,7 @@ export default function Packages({ packages = [] }: PackagesProps) {
                           className="bg-whatsapp-green hover:bg-whatsapp-green-hover text-white font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer text-xs uppercase tracking-wider"
                         >
                           <FaWhatsapp className="w-4.5 h-4.5" />
-                          Book WhatsApp
+                          {p.pricingType === "km" ? "Get Quote" : "Book Package"}
                         </button>
                       </div>
                     </div>

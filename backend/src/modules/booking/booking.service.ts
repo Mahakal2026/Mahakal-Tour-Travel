@@ -55,7 +55,7 @@ export class BookingService {
     const booking = await BookingInquiry.findByIdAndUpdate(
       id,
       { status },
-      { new: true, runValidators: true }
+      { returnDocument: "after", runValidators: true }
     );
 
     if (!booking) {

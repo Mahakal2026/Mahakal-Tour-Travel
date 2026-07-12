@@ -65,10 +65,14 @@ export const errorHandler = (
 
   // Log error using Winston logger
   const reqInfo = `${req.method} ${req.originalUrl} [ReqID: ${req.id || 'N/A'}]`;
+  const logMessage = err instanceof ZodError
+    ? `Validation failed: ${details.map((d: any) => `${d.field}: ${d.message}`).join(", ")}`
+    : message;
+
   if (statusCode >= 500) {
-    logger.error(`🔥 500 Error on ${reqInfo}: ${err.stack || message}`);
+    logger.error(`🔥 500 Error on ${reqInfo}: ${err.stack || logMessage}`);
   } else {
-    logger.warn(`⚠️ ${statusCode} Error on ${reqInfo}: ${message}`);
+    logger.warn(`⚠️ ${statusCode} Error on ${reqInfo}: ${logMessage}`);
   }
 
   // Include stack trace in response if in development mode

@@ -28,6 +28,8 @@ export default function PackageForm({
       duration: "",
       price: 0,
       priceLabel: "",
+      vehicleName: "Sedan",
+      pricingType: "flat",
       isActive: true,
       inclusions: [{ value: "" }],
     },
@@ -47,6 +49,8 @@ export default function PackageForm({
         duration: initialData.duration,
         price: initialData.price,
         priceLabel: initialData.priceLabel || "",
+        vehicleName: initialData.vehicleName || "Sedan",
+        pricingType: (initialData.pricingType as any) || "flat",
         isActive: initialData.isActive,
         inclusions: inclusionsList,
       });
@@ -58,6 +62,8 @@ export default function PackageForm({
         duration: "",
         price: 0,
         priceLabel: "",
+        vehicleName: "Sedan",
+        pricingType: "flat",
         isActive: true,
         inclusions: [{ value: "" }],
       });
@@ -153,6 +159,28 @@ export default function PackageForm({
                 className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-saffron-500 outline-none text-sm"
                 placeholder="e.g. Sedan Cab flat price / Based on Kilometer calculations"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Vehicle Name</label>
+              <input
+                type="text"
+                required
+                {...register("vehicleName", { required: true })}
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-saffron-500 outline-none text-sm"
+                placeholder="e.g. Sedan, SUV, Premium SUV"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Pricing Type</label>
+              <select
+                required
+                {...register("pricingType", { required: true })}
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-saffron-500 outline-none text-sm bg-white"
+              >
+                <option value="flat">Flat Rate (e.g. Sedan Car Price)</option>
+                <option value="km">Km Based (e.g. Based on Km / Custom Quote)</option>
+                <option value="oneway">One-Way Drop (e.g. Sedan One-Way)</option>
+              </select>
             </div>
           </div>
 

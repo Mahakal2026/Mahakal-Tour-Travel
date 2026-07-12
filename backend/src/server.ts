@@ -33,7 +33,6 @@ const bootstrap = async () => {
   // Start Express Server
   server = app.listen(env.PORT, () => {
     logger.info(`🚀 Server running in ${env.NODE_ENV} mode on port ${env.PORT}`);
-    logger.info(`🔗 Admin login: ${env.ADMIN_EMAIL}`);
   });
 
   // Handle unhandled rejections outside Express

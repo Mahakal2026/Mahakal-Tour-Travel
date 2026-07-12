@@ -36,7 +36,7 @@ export class ReviewService {
    */
   public static async updateReview(id: string, data: Partial<IReview>): Promise<IReview> {
     const review = await Review.findByIdAndUpdate(id, data, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
     if (!review) {

@@ -6,6 +6,8 @@ export interface IPackage extends Document {
   duration: string;
   price: number;
   priceLabel?: string;
+  vehicleName?: string;
+  pricingType?: "flat" | "km" | "oneway";
   inclusions: string[];
   image: string;
   isActive: boolean;
@@ -38,6 +40,19 @@ const PackageSchema = new Schema<IPackage>(
     priceLabel: {
       type: String,
       trim: true,
+    },
+    vehicleName: {
+      type: String,
+      trim: true,
+      default: "Sedan",
+    },
+    pricingType: {
+      type: String,
+      enum: {
+        values: ["flat", "km", "oneway"],
+        message: "Pricing type must be one of: flat, km, oneway",
+      },
+      default: "flat",
     },
     inclusions: {
       type: [String],

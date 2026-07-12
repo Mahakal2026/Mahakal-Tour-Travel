@@ -25,7 +25,7 @@ const BookingInquirySchema = new Schema<IBookingInquiry>(
       trim: true,
       validate: {
         validator: function (v: string) {
-          return !v || /^(?:\+91|91)?[6-9]\d{9}$/.test(v.replace(/[\s-]/g, ""));
+          return !v || /^(?:\+91|91|0)?[6-9]\d{9}$/.test(v.replace(/[^\d+]/g, ""));
         },
         message: (props) => `${props.value} is not a valid Indian phone number!`,
       },

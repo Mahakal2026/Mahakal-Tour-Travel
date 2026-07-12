@@ -65,11 +65,13 @@ app.use(
   })
 );
 
-// Route Morgan HTTP request logs through Winston logger
-const morganStream = {
-  write: (message: string) => logger.info(message.trim()),
-};
-app.use(morgan("combined", { stream: morganStream }));
+// Route Morgan HTTP request logs through Winston logger (production only to prevent console clutter in development)
+if (env.NODE_ENV === "production") {
+  const morganStream = {
+    write: (message: string) => logger.info(message.trim()),
+  };
+  app.use(morgan("combined", { stream: morganStream }));
+}
 
 // Mount Modular feature-based routers
 app.use("/api/health", healthRoutes);

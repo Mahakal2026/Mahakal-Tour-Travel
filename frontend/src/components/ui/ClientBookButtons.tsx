@@ -2,7 +2,7 @@
 
 import React, { useTransition } from "react";
 import { FaWhatsapp } from "react-icons/fa";
-import { buildAndSendBooking } from "@/lib/whatsapp";
+import { buildAndSendBooking, sendBookingInquiry } from "@/lib/whatsapp";
 
 interface BookButtonWrapperProps {
   vehicle: any;
@@ -25,10 +25,10 @@ export function BookButtonWrapper({ vehicle }: BookButtonWrapperProps) {
     <button
       onClick={handleClick}
       disabled={isPending}
-      className="w-full sm:w-auto bg-slate-950 hover:bg-saffron-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-saffron-600/30 transition-all text-center flex items-center justify-center gap-2 cursor-pointer uppercase text-xs tracking-wider"
+      className="w-full sm:w-auto bg-slate-950 hover:bg-saffron-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-saffron-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer uppercase text-xs tracking-wider whitespace-nowrap"
     >
-      <FaWhatsapp className="w-4 h-4" />
-      {isPending ? "Connecting..." : "Book Cab Now"}
+      <FaWhatsapp className="w-4 h-4 flex-shrink-0" />
+      <span>{isPending ? "Connecting..." : "Book Cab Now"}</span>
     </button>
   );
 }
@@ -42,11 +42,34 @@ export function BookPackageButtonWrapper({ pkg }: BookPackageButtonWrapperProps)
 
   const handleBook = () => {
     startTransition(async () => {
-      await buildAndSendBooking({
-        vehicle: pkg,
+      let formattedMessage = "";
+      let rateText = "";
+
+      if (pkg.pricingType === "km") {
+        rateText = pkg.price > 0 ? `₹${pkg.price}/Km` : "Based on Km";
+        formattedMessage = `Hello Mahakal Tour & Travels, I would like to get a custom quote for the package.\n\n` +
+          `*Package Details:*\n` +
+          `• *Package Name:* ${pkg.name}\n` +
+          `• *Duration:* ${pkg.duration}\n` +
+          `• *Estimated Rate:* ${rateText}\n\n` +
+          `Please confirm availability and share details. Thank you!`;
+      } else {
+        rateText = `₹${pkg.price.toLocaleString("en-IN")}`;
+        formattedMessage = `Hello Mahakal Tour & Travels, I would like to book a cab package.\n\n` +
+          `*Package Details:*\n` +
+          `• *Package Name:* ${pkg.name}\n` +
+          `• *Duration:* ${pkg.duration}\n` +
+          `• *Price:* ${rateText}\n\n` +
+          `Please confirm availability. Thank you!`;
+      }
+
+      await sendBookingInquiry({
+        name: "Valued Customer",
+        vehicle: "sedan", // default
         tripType: "package-inquiry",
-        packageName: pkg.name,
-        price: pkg.price,
+        routeOrPackage: `${pkg.name} (${pkg.duration})`,
+        estimatedFare: pkg.pricingType === "km" ? undefined : pkg.price,
+        messageText: formattedMessage,
       });
     });
   };
@@ -55,10 +78,10 @@ export function BookPackageButtonWrapper({ pkg }: BookPackageButtonWrapperProps)
     <button
       onClick={handleBook}
       disabled={isPending}
-      className="w-full sm:w-auto bg-slate-950 hover:bg-saffron-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-saffron-600/30 transition-all text-center flex items-center justify-center gap-2 cursor-pointer uppercase text-xs tracking-wider"
+      className="w-full sm:w-auto bg-slate-950 hover:bg-saffron-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-saffron-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer uppercase text-xs tracking-wider whitespace-nowrap"
     >
-      <FaWhatsapp className="w-4 h-4" />
-      {isPending ? "Connecting..." : "Enquire Now"}
+      <FaWhatsapp className="w-4 h-4 flex-shrink-0" />
+      <span>{isPending ? "Connecting..." : pkg.pricingType === "km" ? "Get Custom Quote" : "Book Package"}</span>
     </button>
   );
 }

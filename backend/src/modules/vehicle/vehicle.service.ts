@@ -36,7 +36,7 @@ export class VehicleService {
    */
   public static async updateVehicle(id: string, data: Partial<IVehicle>): Promise<IVehicle> {
     const vehicle = await Vehicle.findByIdAndUpdate(id, data, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
     if (!vehicle) {

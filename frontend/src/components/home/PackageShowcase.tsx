@@ -24,22 +24,32 @@ export default function PackageShowcase({ packages = [] }: { packages?: Package[
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {displayPackages.map((pkg, index) => {
-            const formattedPrice = pkg.price
-              ? `₹${pkg.price.toLocaleString("en-IN")}`
-              : "Custom Quote";
+            let formattedPrice = "";
+            let displayLabel = "";
+
+            if (pkg.pricingType === "km") {
+              displayLabel = "Package Fare Starts";
+              formattedPrice = pkg.price > 0 ? `₹${pkg.price}/Km` : "Based on Km";
+            } else if (pkg.pricingType === "oneway") {
+              displayLabel = `${pkg.vehicleName || "Sedan"} One-Way`;
+              formattedPrice = `₹${pkg.price.toLocaleString("en-IN")}`;
+            } else {
+              displayLabel = `${pkg.vehicleName || "Sedan"} Car Price`;
+              formattedPrice = `₹${pkg.price.toLocaleString("en-IN")}`;
+            }
 
             return (
               <AnimatedSection key={pkg._id || pkg.name} delay={index * 0.1}>
                 <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden hover:shadow-2xl transition-all flex flex-col h-full">
                   {/* Image */}
-                  <div className="relative h-56 bg-slate-900">
+                  <div className="relative h-56 bg-white flex items-center justify-center p-4">
                     <img
                       src={
                         pkg.image ||
                         "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80"
                       }
                       alt={pkg.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                       loading="lazy"
                     />
                     <div className="absolute bottom-4 left-4 bg-slate-950/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 z-10">
@@ -65,15 +75,15 @@ export default function PackageShowcase({ packages = [] }: { packages?: Package[
                     <div className="mt-auto border-t border-slate-100 pt-5 flex items-center justify-between">
                       <div>
                         <span className="text-xs text-slate-400 block">
-                          {pkg.priceLabel || "Package Price"}
+                          {displayLabel}
                         </span>
-                        <span className="text-2xl font-extrabold text-saffron-600">
+                        <span className={`font-extrabold text-saffron-600 ${pkg.pricingType === "km" ? "text-xl" : "text-2xl"}`}>
                           {formattedPrice}
                         </span>
                       </div>
                       <Link
                         href={`/packages/${pkg._id}`}
-                        className="bg-saffron-600 hover:bg-saffron-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all touch-target text-center"
+                        className="bg-saffron-600 hover:bg-saffron-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all touch-target flex items-center justify-center text-center whitespace-nowrap"
                       >
                         View Details
                       </Link>
