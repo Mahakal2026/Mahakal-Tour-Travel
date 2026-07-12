@@ -55,7 +55,7 @@ export default function FleetPreview({ vehicles = [] }: { vehicles?: Vehicle[] }
                 <AnimatedSection key={vehicle._id || vehicle.name} delay={index * 0.1}>
                   <div className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden hover:shadow-2xl transition-all flex flex-col h-full group">
                     {/* Image */}
-                    <div className="relative bg-slate-900 h-52 overflow-hidden flex items-center justify-center">
+                    <div className="relative bg-white h-52 overflow-hidden flex items-center justify-center border-b border-slate-100">
                       <div className="absolute top-4 left-4 bg-saffron-600 text-white font-bold text-xs uppercase px-3 py-1.5 rounded-full shadow z-10 class-badge-override" style={{ backgroundColor: badge.bg.includes("emerald") ? "#059669" : badge.bg.includes("purple") ? "#9333ea" : badge.bg.includes("amber") ? "#d97706" : "#ea580c" }}>
                         {badge.text}
                       </div>
