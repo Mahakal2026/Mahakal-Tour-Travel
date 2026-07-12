@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { FaUsers, FaSnowflake, FaWhatsapp } from "react-icons/fa";
 import { Vehicle } from "@/types";
-import { buildAndSendBooking } from "@/lib/whatsapp";
+import { BookButtonWrapper } from "@/components/ui/ClientBookButtons";
 
 interface FleetProps {
   vehicles: Vehicle[];
@@ -12,14 +12,6 @@ interface FleetProps {
 
 export default function Fleet({ vehicles = [] }: FleetProps) {
   const activeVehicles = vehicles.filter((v) => v.isActive);
-
-  const handleBookVehicle = async (vehicle: Vehicle) => {
-    await buildAndSendBooking({
-      vehicle,
-      tripType: "local",
-      price: vehicle.localPrice || 0,
-    });
-  };
 
   return (
     <section id="fleet" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
@@ -108,13 +100,11 @@ export default function Fleet({ vehicles = [] }: FleetProps) {
                       >
                         View Details
                       </Link>
-                      <button
-                        onClick={() => handleBookVehicle(v)}
-                        className="bg-whatsapp-green hover:bg-whatsapp-green-hover text-white font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer text-xs uppercase tracking-wider"
-                      >
-                        <FaWhatsapp className="w-4 h-4" />
-                        Book Now
-                      </button>
+                      <BookButtonWrapper
+                        vehicle={v}
+                        className="bg-whatsapp-green hover:bg-whatsapp-green-hover text-white font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer text-xs uppercase tracking-wider w-full text-center justify-center"
+                        label="Book Now"
+                      />
                     </div>
                   </div>
 
