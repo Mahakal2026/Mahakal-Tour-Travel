@@ -5,6 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { Loader2, X, Image as ImageIcon } from "lucide-react";
 import { Vehicle, OutstationTier } from "@/types";
 import OutstationTiersTable from "./OutstationTiersTable";
+import FarePreviewWidget from "./FarePreviewWidget";
 
 interface VehicleFormProps {
   initialData?: Vehicle | null;
@@ -22,7 +23,7 @@ export default function VehicleForm({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const { register, handleSubmit, reset, control, setValue } = useForm({
+  const { register, handleSubmit, reset, control, setValue, watch } = useForm({
     defaultValues: {
       name: "",
       type: "sedan" as "sedan" | "suv" | "premium-suv" | "tempo",
@@ -35,6 +36,10 @@ export default function VehicleForm({
       outstationTiers: [] as OutstationTier[],
     },
   });
+
+  const pricePerKm = watch("pricePerKm");
+  const localPrice = watch("localPrice");
+  const outstationTiers = watch("outstationTiers");
 
   useEffect(() => {
     if (initialData) {
@@ -188,6 +193,12 @@ export default function VehicleForm({
               )}
             />
           </div>
+
+          <FarePreviewWidget
+            tiers={outstationTiers || []}
+            pricePerKm={Number(pricePerKm) || 0}
+            localPrice={localPrice ? Number(localPrice) : undefined}
+          />
 
           {/* Image Upload Input */}
           <div className="border-t border-slate-100 pt-6">

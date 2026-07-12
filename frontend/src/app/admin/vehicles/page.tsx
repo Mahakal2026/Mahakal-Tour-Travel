@@ -6,6 +6,7 @@ import { adminApi } from "@/lib/adminApi";
 import { Loader2, Plus, Edit, Trash2, ChevronDown, ChevronUp, Check, X } from "lucide-react";
 import VehicleForm from "@/admin-components/VehicleForm";
 import OutstationTiersTable from "@/admin-components/OutstationTiersTable";
+import FarePreviewWidget from "@/admin-components/FarePreviewWidget";
 import { Vehicle, OutstationTier } from "@/types";
 
 export default function VehiclesAdminPage() {
@@ -267,6 +268,14 @@ export default function VehiclesAdminPage() {
                                 }))
                               }
                             />
+                            
+                            {/* Live Fare Preview Section */}
+                            <FarePreviewWidget
+                              tiers={activeTiers}
+                              pricePerKm={v.pricePerKm}
+                              localPrice={v.localPrice}
+                            />
+
                             <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
                               <button
                                 type="button"

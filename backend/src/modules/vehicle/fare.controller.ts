@@ -41,36 +41,69 @@ export const calculateFare = async (req: Request, res: Response): Promise<void> 
 
     // Standard Gwalior outstation policy: minimum allowed 250km per day billing
     const minAllowedKm = days * 250;
-    const billableKm = Math.max(km, minAllowedKm);
-
-    // Determine outstation rate based on tiers
-    let outstationRate = rateOutstation;
+    
+    let basePrice = 0;
+    let excessKm = 0;
+    let excessCharge = 0;
 
     if (vehicle.outstationTiers && vehicle.outstationTiers.length > 0) {
       const sortedTiers = [...vehicle.outstationTiers].sort((a, b) => a.days - b.days);
       const exactMatch = sortedTiers.find((t) => t.days === days);
 
       if (exactMatch) {
-        outstationRate = exactMatch.price;
+        const tierPrice = exactMatch.price;
+        if (tierPrice > 100) {
+          // Flat base price tier (e.g. ₹2,500 flat rate for day 1)
+          basePrice = tierPrice;
+          excessKm = Math.max(0, km - exactMatch.minKm);
+          excessCharge = excessKm * rateOutstation;
+        } else {
+          // Price per Km tier (e.g. ₹12/km)
+          basePrice = minAllowedKm * tierPrice;
+          excessKm = Math.max(0, km - minAllowedKm);
+          excessCharge = excessKm * tierPrice;
+        }
       } else {
         const maxTier = sortedTiers[sortedTiers.length - 1];
         if (days > maxTier.days) {
-          // If days exceed our highest tier, extrapolate using the lowest rate from the max tier
-          outstationRate = maxTier.price;
+          // Extrapolate using the highest tier rate/ratio
           breakdown.isExtrapolated = true;
+          const tierPrice = maxTier.price;
+          if (tierPrice > 100) {
+            const dailyRate = tierPrice / maxTier.days;
+            basePrice = days * dailyRate;
+            excessKm = Math.max(0, km - minAllowedKm);
+            excessCharge = excessKm * rateOutstation;
+          } else {
+            basePrice = minAllowedKm * tierPrice;
+            excessKm = Math.max(0, km - minAllowedKm);
+            excessCharge = excessKm * tierPrice;
+          }
         } else {
           // Fallback to the closest higher tier
           const nextTier = sortedTiers.find((t) => t.days > days) || maxTier;
-          outstationRate = nextTier.price;
+          const tierPrice = nextTier.price;
+          if (tierPrice > 100) {
+            basePrice = tierPrice;
+            excessKm = Math.max(0, km - nextTier.minKm);
+            excessCharge = excessKm * rateOutstation;
+          } else {
+            basePrice = minAllowedKm * tierPrice;
+            excessKm = Math.max(0, km - minAllowedKm);
+            excessCharge = excessKm * tierPrice;
+          }
         }
       }
+    } else {
+      // No tiers configured, fallback to standard per-km rate
+      basePrice = minAllowedKm * rateOutstation;
+      excessKm = Math.max(0, km - minAllowedKm);
+      excessCharge = excessKm * rateOutstation;
     }
 
-    price = billableKm * outstationRate;
-
-    // Build the fare breakdown object for the frontend breakdown display
-    breakdown.basePrice = minAllowedKm * outstationRate;
-    breakdown.excessKmCharge = Math.max(0, km - minAllowedKm) * outstationRate;
+    price = basePrice + excessCharge;
+    breakdown.basePrice = basePrice;
+    breakdown.excessKmCharge = excessCharge;
   } else if (tripType === "one-way") {
     if (!km || km <= 0) {
       throw new AppError("km is required and must be greater than zero for one-way trip", 400, "BAD_REQUEST");
