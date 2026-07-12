@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useTransition } from "react";
-import { MessageCircle } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import { buildAndSendBooking } from "@/lib/whatsapp";
 
 interface BookButtonWrapperProps {
@@ -27,7 +27,7 @@ export function BookButtonWrapper({ vehicle }: BookButtonWrapperProps) {
       disabled={isPending}
       className="w-full sm:w-auto bg-slate-950 hover:bg-saffron-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-saffron-600/30 transition-all text-center flex items-center justify-center gap-2 cursor-pointer uppercase text-xs tracking-wider"
     >
-      <MessageCircle className="w-4 h-4" />
+      <FaWhatsapp className="w-4 h-4" />
       {isPending ? "Connecting..." : "Book Cab Now"}
     </button>
   );
@@ -57,7 +57,7 @@ export function BookPackageButtonWrapper({ pkg }: BookPackageButtonWrapperProps)
       disabled={isPending}
       className="w-full sm:w-auto bg-slate-950 hover:bg-saffron-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-saffron-600/30 transition-all text-center flex items-center justify-center gap-2 cursor-pointer uppercase text-xs tracking-wider"
     >
-      <MessageCircle className="w-4 h-4" />
+      <FaWhatsapp className="w-4 h-4" />
       {isPending ? "Connecting..." : "Enquire Now"}
     </button>
   );

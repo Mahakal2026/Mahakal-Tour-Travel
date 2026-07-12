@@ -1,6 +1,7 @@
 "use client";
 
-import { PhoneCall, MessageCircle } from "lucide-react";
+import { PhoneCall } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import { BUSINESS } from "@/lib/constants";
 import { buildWhatsAppUrl, buildGenericGreeting } from "@/lib/whatsapp";
 import AnimatedSection from "@/components/ui/AnimatedSection";
@@ -43,7 +44,7 @@ export default function FinalCTA() {
               rel="noopener noreferrer"
               className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-8 py-4 rounded-xl shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 text-lg touch-target"
             >
-              <MessageCircle className="w-5 h-5" />
+              <FaWhatsapp className="w-5 h-5" />
               Chat on WhatsApp
             </a>
           </div>

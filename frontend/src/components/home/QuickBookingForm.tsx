@@ -108,10 +108,13 @@ export default function QuickBookingForm({ vehicles = [] }: { vehicles?: Vehicle
         `*Booking Details:*\n` +
         `• *Name:* ${data.name}\n` +
         `• *Phone:* +91 ${data.phone}\n` +
-        `• *Pick-up:* ${data.pickup}\n` +
+        `• *Pick-up Location:* ${data.pickup}\n` +
+        (data.drop ? `• *Drop Location:* ${data.drop}\n` : "") +
         `• *Travel Date:* ${data.date}\n` +
         `• *Passengers:* ${passengers}\n\n` +
         `Please confirm availability. Thank you!`;
+
+      const routeText = data.pickup + (data.drop ? ` to ${data.drop}` : "");
 
       // Trigger booking flow (calls POST API and opens WhatsApp)
       await sendBookingInquiry({
@@ -119,7 +122,7 @@ export default function QuickBookingForm({ vehicles = [] }: { vehicles?: Vehicle
         phone: data.phone,
         vehicle: vehicleEnum,
         tripType: "one-way",
-        routeOrPackage: `${data.pickup} (Date: ${data.date}, Passengers: ${passengers})`,
+        routeOrPackage: `${routeText} (Date: ${data.date}, Passengers: ${passengers})`,
         messageText: formattedMessage,
       });
     } catch (error) {
@@ -189,45 +192,78 @@ export default function QuickBookingForm({ vehicles = [] }: { vehicles?: Vehicle
           </div>
         </div>
 
-        {/* Pickup Location */}
-        <div>
-          <div className="flex justify-between items-center mb-1.5">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-              Pick-up Location
-            </label>
-            <button
-              type="button"
-              onClick={handleLocateMe}
-              disabled={isLocating}
-              className="text-[10px] text-saffron-400 hover:text-saffron-300 font-extrabold flex items-center gap-1 uppercase tracking-wider disabled:opacity-50 cursor-pointer transition-colors"
-            >
-              {isLocating ? (
-                <>
-                  <CgSpinner className="animate-spin text-xs" /> Locating...
-                </>
-              ) : (
-                <>
-                  <Navigation className="w-3 h-3 rotate-45" /> Locate Me
-                </>
-              )}
-            </button>
-          </div>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
-              <MapPin className="w-4 h-4 text-slate-400" />
-            </span>
-            <input
-              type="text"
-              {...register("pickup")}
-              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:border-transparent transition-all text-sm text-white placeholder-slate-500"
-              placeholder="Pickup Location"
-            />
-          </div>
-          {errors.pickup && (
-            <p className="text-red-400 text-xs mt-1">{errors.pickup.message}</p>
-          )}
-        </div>
 
+        {/* Pickup & Drop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Pickup */}
+          <div>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
+                Pick-up Location
+              </label>
+
+              <button
+                type="button"
+                onClick={handleLocateMe}
+                disabled={isLocating}
+                className="text-[10px] text-saffron-400 hover:text-saffron-300 font-bold flex items-center gap-1 uppercase tracking-wider disabled:opacity-50 transition"
+              >
+                {isLocating ? (
+                  <>
+                    <CgSpinner className="animate-spin text-xs" />
+                    Locating...
+                  </>
+                ) : (
+                  <>
+                    <Navigation className="w-3 h-3 rotate-45" />
+                    Locate Me
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+
+              <input
+                type="text"
+                {...register("pickup")}
+                placeholder="Pickup Location"
+                className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-saffron-500 focus:outline-none text-white placeholder-slate-500"
+              />
+            </div>
+
+            {errors.pickup && (
+              <p className="text-red-400 text-xs mt-1">
+                {errors.pickup.message}
+              </p>
+            )}
+          </div>
+
+          {/* Drop */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+              Drop Location
+            </label>
+
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+
+              <input
+                type="text"
+                {...register("drop")}
+                placeholder="Drop Location"
+                className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-saffron-500 focus:outline-none text-white placeholder-slate-500"
+              />
+            </div>
+
+            {errors.drop && (
+              <p className="text-red-400 text-xs mt-1">
+                {errors.drop.message}
+              </p>
+            )}
+          </div>
+        </div>
         {/* Date & Passengers */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
