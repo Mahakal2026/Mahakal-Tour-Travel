@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { BUSINESS } from "@/lib/constants";
+import Image from "next/image";
 
 
 
@@ -19,8 +20,15 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-3">
             <Link href="/" className="flex items-center space-x-3">
-              <div className="bg-saffron-600 text-white p-2 rounded-lg">
-                <i className="fa-solid fa-om text-lg"></i>
+              <div className=" w-16 h-16 overflow-hidden rounded-xl">
+                {/* <i className="fa-solid fa-om text-lg"></i>s */}
+                 <Image
+                  src="/logo.png"
+                  alt="Logo"
+                  width={45}
+                  height={45}
+                  className="w-16 h-16  object-cover"
+                />
               </div>
               <div>
                 <span className="block text-white font-extrabold tracking-tight font-cinzel leading-none">

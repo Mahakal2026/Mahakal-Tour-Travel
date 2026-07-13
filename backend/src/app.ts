@@ -51,19 +51,31 @@ app.use((req, res, next) => {
 app.use(mongoSanitize());
 
 // Setup CORS configuration using allowed frontend URL from environment configuration
-const allowedOrigins = [env.FRONTEND_URL, "http://localhost:3000", "http://127.0.0.1:3000"];
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error("Blocked by CORS policy"));
-      }
-    },
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  env.FRONTEND_URL,
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://192.168.110.58:3000",
+];
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Blocked by CORS policy"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Request-ID"],
+  exposedHeaders: ["X-Request-ID"],
+};
+
+// Handle preflight OPTIONS requests for all routes
+app.options("*", cors(corsOptions));
+
+app.use(cors(corsOptions));
 
 // Route Morgan HTTP request logs through Winston logger (production only to prevent console clutter in development)
 if (env.NODE_ENV === "production") {

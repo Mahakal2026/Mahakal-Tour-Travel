@@ -3,6 +3,7 @@ import axios from "axios";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
 
 let accessToken = "";
+// Guard: localStorage is only available in browser (not during SSR)
 if (typeof window !== "undefined") {
   accessToken = localStorage.getItem("admin_token") || "";
 }
@@ -12,6 +13,13 @@ export const setAccessToken = (token: string) => {
 };
 
 export const getAccessToken = () => accessToken;
+
+/** Returns true if the error is a network connectivity failure (backend unreachable) */
+const isNetworkError = (error: any): boolean =>
+  !error.response &&
+  (error.code === "ERR_NETWORK" ||
+    error.code === "ECONNREFUSED" ||
+    error.message === "Network Error");
 
 export const adminApi = axios.create({
   baseURL: API_BASE_URL,
@@ -37,6 +45,12 @@ adminApi.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // If backend is completely unreachable (no response), skip refresh logic
+    if (isNetworkError(error)) {
+      return Promise.reject(error);
+    }
+
     const isUnauthorized =
       error.response?.status === 401 ||
       error.response?.data?.error?.code === "UNAUTHORIZED";

@@ -41,6 +41,9 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const status = err?.response?.status;
       if (status === 401) {
         console.debug("Admin token expired or invalid, clearing session");
+      } else if (!err?.response && (err?.code === "ERR_NETWORK" || err?.message === "Network Error")) {
+        // Backend unreachable — silently skip (will redirect to login via route guard)
+        console.warn("Backend unreachable during admin token verification");
       } else {
         console.error("Failed to verify token admin details", err);
       }

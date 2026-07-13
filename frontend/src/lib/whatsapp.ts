@@ -1,6 +1,26 @@
 import { BUSINESS } from "./constants";
 import { apiClient } from "./api";
 
+/** Valid vehicle types accepted by the backend booking validator */
+type ValidVehicleType = "hatchback" | "sedan" | "suv" | "premium-suv" | "tempo";
+
+/**
+ * Normalizes any vehicle type string to a valid backend enum value.
+ * Handles cases like "Sedan", "SUV", "Tempo Traveller", "Premium SUV", etc.
+ */
+function normalizeVehicleType(raw: string | undefined): ValidVehicleType {
+  if (!raw) return "sedan";
+  const lower = raw.toLowerCase().trim();
+  if (lower.includes("hatchback")) return "hatchback";
+  if (lower.includes("premium") && lower.includes("suv")) return "premium-suv";
+  if (lower.includes("tempo") || lower.includes("traveller") || lower.includes("traveler")) return "tempo";
+  if (lower.includes("suv")) return "suv";
+  if (lower.includes("sedan")) return "sedan";
+  // Fallback: return as-is if it already matches, else default to sedan
+  const VALID: ValidVehicleType[] = ["hatchback", "sedan", "suv", "premium-suv", "tempo"];
+  return VALID.includes(lower as ValidVehicleType) ? (lower as ValidVehicleType) : "sedan";
+}
+
 export interface BookingPayload {
   vehicle: any; // Can be a Vehicle object or vehicle string name
   tripType: "local" | "outstation-round" | "one-way" | "package-inquiry" | "general-contact";
@@ -101,7 +121,7 @@ export async function buildAndSendBooking({
     .post("/bookings", {
       name: customerName,
       phone: cleanPhone || undefined,
-      vehicle: vehicleType,
+      vehicle: normalizeVehicleType(vehicleType),
       tripType:
         tripType === "package-inquiry"
           ? "package-inquiry"
@@ -157,7 +177,7 @@ export async function sendBookingInquiry(payload: {
     .post("/bookings", {
       name: payload.name,
       phone: payload.phone ? payload.phone.replace(/[^\d+]/g, "") : undefined,
-      vehicle: payload.vehicle,
+      vehicle: normalizeVehicleType(payload.vehicle),
       tripType: payload.tripType === "one-way" ? "outstation-round" : payload.tripType,
       routeOrPackage: payload.routeOrPackage,
       estimatedFare: payload.estimatedFare,

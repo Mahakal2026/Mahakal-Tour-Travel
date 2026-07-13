@@ -71,6 +71,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://mahakaltourandtravels.com",
   },
+  icons: {
+    icon: "/faveicon.png",
+    shortcut: "/faveicon.png",
+    apple: "/faveicon.png",
+  },
 };
 
 // JSON-LD Schema

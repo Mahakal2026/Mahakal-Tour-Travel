@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -29,8 +29,17 @@ export default function Navbar() {
               className="flex items-center space-x-3"
               onClick={closeMenu}
             >
-              <div className="bg-gradient-to-tr from-saffron-600 to-amber-500 text-white p-2.5 rounded-xl shadow-lg shadow-saffron-500/20">
-                <i className="fa-solid fa-om text-2xl"></i>
+              {/* <i className="fa-solid fa-om text-2xl"></i> */}
+
+              <div className="w-16 h-16 flex items-center justify-center overflow-hidden rounded-2xl">
+                <Image
+                  src="/logo.png"
+                  alt="Mahakal Tour & Travels Logo"
+                  width={64}
+                  height={64}
+                  className="h-full w-full object-contain"
+                  priority
+                />
               </div>
               <div>
                 <span className="block text-xl font-extrabold text-slate-900 tracking-tight font-cinzel leading-none">
