@@ -83,11 +83,20 @@ export default function VehiclesAdminPage() {
     formData.append("capacity", data.capacity);
     formData.append("acType", data.acType);
     formData.append("pricePerKm", data.pricePerKm);
-    if (data.localPrice !== undefined) {
+    if (data.localPrice !== undefined && data.localPrice !== null && data.localPrice !== "") {
       formData.append("localPrice", data.localPrice);
+    } else {
+      formData.append("localPrice", "");
+    }
+    if (data.outstationPrice !== undefined && data.outstationPrice !== null && data.outstationPrice !== "") {
+      formData.append("outstationPrice", data.outstationPrice);
+    } else {
+      formData.append("outstationPrice", "");
     }
     if (data.subtitle) {
       formData.append("subtitle", data.subtitle);
+    } else {
+      formData.append("subtitle", "");
     }
     formData.append("isActive", String(data.isActive));
     formData.append("outstationTiers", JSON.stringify(data.outstationTiers || []));
@@ -274,6 +283,7 @@ export default function VehiclesAdminPage() {
                               tiers={activeTiers}
                               pricePerKm={v.pricePerKm}
                               localPrice={v.localPrice}
+                              outstationPrice={v.outstationPrice}
                             />
 
                             <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">

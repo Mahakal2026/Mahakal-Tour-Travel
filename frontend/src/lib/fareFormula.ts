@@ -17,78 +17,86 @@ export function getMinKm(days: number): number {
 }
 
 export function calculateOutstationFare(
-  tiers: { days: number; minKm: number; price: number; flatDayPrice?: number }[],
+  tiers: { days: number; minKm: number; price: number; flatDayPrice?: number | null }[],
   pricePerKm: number,
   days: number,
-  km: number
+  km: number,
+  outstationPrice?: number
 ): FareCalculationResult {
-  const minAllowedKm = getMinKm(days);
-  
+  const numDays = Number(days) || 1;
+  const numKm = Number(km) || numDays * 250;
+  const standardMinKm = numDays * 250;
+
   let basePrice = 0;
+  let includedKm = standardMinKm;
   let excessKm = 0;
+  let excessRate = pricePerKm;
   let excessCharge = 0;
   let isExtrapolated = false;
+  let requiresCustomQuote = numDays > 4;
 
-  if (tiers && tiers.length > 0) {
+  // Priority 1: Admin-set flat per-day outstation rate (outstationPrice)
+  if (outstationPrice && outstationPrice > 0) {
+    basePrice = outstationPrice * numDays;
+    includedKm = standardMinKm;
+    excessKm = Math.max(0, numKm - includedKm);
+    excessRate = pricePerKm;
+    excessCharge = excessKm * excessRate;
+  }
+  // Priority 2: Configured Outstation Tiers
+  else if (tiers && tiers.length > 0) {
     const sortedTiers = [...tiers].sort((a, b) => a.days - b.days);
-    const exactMatch = sortedTiers.find((t) => t.days === days);
+    const exactMatch = sortedTiers.find((t) => Number(t.days) === numDays);
 
     if (exactMatch) {
-      // Check flatDayPrice first (admin-set manual flat base price)
+      includedKm = exactMatch.minKm || standardMinKm;
+
       if (exactMatch.flatDayPrice && exactMatch.flatDayPrice > 0) {
         basePrice = exactMatch.flatDayPrice;
-        excessKm = Math.max(0, km - exactMatch.minKm);
-        excessCharge = excessKm * pricePerKm;
+        excessKm = Math.max(0, numKm - includedKm);
+        excessRate = exactMatch.price > 0 && exactMatch.price < 100 ? exactMatch.price : pricePerKm;
+        excessCharge = excessKm * excessRate;
       } else {
-        const tierPrice = exactMatch.price;
+        const tierPrice = exactMatch.price || pricePerKm;
         if (tierPrice > 100) {
-          // Flat base price tier (e.g. ₹2,500 flat rate for day 1)
           basePrice = tierPrice;
-          excessKm = Math.max(0, km - exactMatch.minKm);
-          excessCharge = excessKm * pricePerKm;
+          excessKm = Math.max(0, numKm - includedKm);
+          excessRate = pricePerKm;
+          excessCharge = excessKm * excessRate;
         } else {
-          // Price per Km tier (e.g. ₹12/km)
-          basePrice = minAllowedKm * tierPrice;
-          excessKm = Math.max(0, km - minAllowedKm);
-          excessCharge = excessKm * tierPrice;
+          basePrice = includedKm * tierPrice;
+          excessKm = Math.max(0, numKm - includedKm);
+          excessRate = tierPrice;
+          excessCharge = excessKm * excessRate;
         }
       }
     } else {
       const maxTier = sortedTiers[sortedTiers.length - 1];
-      if (days > maxTier.days) {
-        // Extrapolate using the highest tier rate/ratio
+      if (numDays > maxTier.days) {
         isExtrapolated = true;
-        const tierPrice = maxTier.price;
-        if (tierPrice > 100) {
-          const dailyRate = tierPrice / maxTier.days;
-          basePrice = days * dailyRate;
-          excessKm = Math.max(0, km - minAllowedKm);
-          excessCharge = excessKm * pricePerKm;
-        } else {
-          basePrice = minAllowedKm * tierPrice;
-          excessKm = Math.max(0, km - minAllowedKm);
-          excessCharge = excessKm * tierPrice;
-        }
+        includedKm = standardMinKm;
+        basePrice = includedKm * pricePerKm;
+        excessKm = Math.max(0, numKm - includedKm);
+        excessRate = pricePerKm;
+        excessCharge = excessKm * excessRate;
       } else {
-        // Fallback to the closest higher tier
-        const nextTier = sortedTiers.find((t) => t.days > days) || maxTier;
-        const tierPrice = nextTier.price;
-        if (tierPrice > 100) {
-          basePrice = tierPrice;
-          excessKm = Math.max(0, km - nextTier.minKm);
-          excessCharge = excessKm * pricePerKm;
-        } else {
-          basePrice = minAllowedKm * tierPrice;
-          excessKm = Math.max(0, km - minAllowedKm);
-          excessCharge = excessKm * tierPrice;
-        }
+        const nextTier = sortedTiers.find((t) => t.days > numDays) || maxTier;
+        includedKm = standardMinKm;
+        const tierPrice = nextTier.price > 100 ? pricePerKm : nextTier.price;
+        basePrice = includedKm * tierPrice;
+        excessKm = Math.max(0, numKm - includedKm);
+        excessRate = tierPrice;
+        excessCharge = excessKm * excessRate;
       }
     }
-  } else {
-    // No tiers configured, fallback to standard per-km rate
-    basePrice = minAllowedKm * pricePerKm;
-    excessKm = Math.max(0, km - minAllowedKm);
-    excessCharge = excessKm * pricePerKm;
+  }
+  // Priority 3: Standard fallback (250 km/day × pricePerKm)
+  else {
+    includedKm = standardMinKm;
+    basePrice = includedKm * pricePerKm;
+    excessKm = Math.max(0, numKm - includedKm);
+    excessRate = pricePerKm;
+    excessCharge = excessKm * excessRate;
   }
 
   const price = basePrice + excessCharge;
@@ -99,6 +107,10 @@ export function calculateOutstationFare(
       basePrice,
       excessKmCharge: excessCharge,
       isExtrapolated,
-    },
+      requiresCustomQuote,
+      includedKm,
+      excessKm,
+      excessRate,
+    } as any,
   };
 }

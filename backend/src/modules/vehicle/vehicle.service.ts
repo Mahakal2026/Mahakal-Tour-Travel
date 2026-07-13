@@ -34,8 +34,21 @@ export class VehicleService {
   /**
    * Update a vehicle record
    */
-  public static async updateVehicle(id: string, data: Partial<IVehicle>): Promise<IVehicle> {
-    const vehicle = await Vehicle.findByIdAndUpdate(id, data, {
+  public static async updateVehicle(id: string, data: any): Promise<IVehicle> {
+    const updateQuery: any = { $set: {}, $unset: {} };
+    for (const key of Object.keys(data)) {
+      if (data[key] === undefined || data[key] === null || data[key] === "") {
+        if (key === "localPrice" || key === "outstationPrice" || key === "subtitle") {
+          updateQuery.$unset[key] = 1;
+        }
+      } else {
+        updateQuery.$set[key] = data[key];
+      }
+    }
+    if (Object.keys(updateQuery.$unset).length === 0) delete updateQuery.$unset;
+    if (Object.keys(updateQuery.$set).length === 0) delete updateQuery.$set;
+
+    const vehicle = await Vehicle.findByIdAndUpdate(id, updateQuery, {
       returnDocument: "after",
       runValidators: true,
     });

@@ -17,6 +17,11 @@ interface FareBreakdown {
   basePrice?: number;
   excessKmCharge?: number;
   isExtrapolated?: boolean;
+  includedKm?: number;
+  excessKm?: number;
+  excessRate?: number;
+  requiresCustomQuote?: boolean;
+  calculationType?: string;
 }
 
 export default function FareCalculator({ vehicles: vehiclesProp = [] }: FareCalculatorProps) {
@@ -360,6 +365,39 @@ export default function FareCalculator({ vehicles: vehiclesProp = [] }: FareCalc
               )}
             </div>
 
+            {/* Custom quote notice for > 4 days */}
+            {tripType === "outstation-round" && days > 4 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 space-y-3">
+                <div className="flex items-start gap-3">
+                  <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-sm font-extrabold text-amber-900 uppercase tracking-wide">
+                      Trip Duration &gt; 4 Days — Custom Quote Available
+                    </h4>
+                    <p className="text-xs text-amber-800 mt-1 leading-relaxed">
+                      You need more than 4 days? For multi-day outstation itineraries beyond 4 days, please talk to our team on call or WhatsApp for custom pricing, special discounts &amp; exact estimates!
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-3 pt-2">
+                  <a
+                    href="tel:+919826012345"
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-sm"
+                  >
+                    📞 Call Our Person
+                  </a>
+                  <a
+                    href="https://wa.me/919826012345?text=Hello%2C%20I%20am%20looking%20for%20an%20outstation%20cab%20booking%20for%20more%20than%204%20days."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-sm"
+                  >
+                    💬 WhatsApp Us
+                  </a>
+                </div>
+              </div>
+            )}
+
             {/* Fare Breakdown display */}
             {price !== null && !loading && (
               <div className="bg-orange-50/50 border border-orange-100 rounded-2xl p-5 space-y-3">
@@ -380,21 +418,21 @@ export default function FareCalculator({ vehicles: vehiclesProp = [] }: FareCalc
                       <div>
                         • Billable distance: <span className="font-bold text-slate-800">{Math.max(km, getMinKm(days))} Km</span>
                       </div>
-                      {breakdown?.basePrice && (
+                      {breakdown?.basePrice !== undefined && (
                         <div>
-                          • Base Outstation Tier Rate: <span className="font-bold text-slate-800">₹{breakdown.basePrice.toLocaleString("en-IN")}</span>
+                          • Base Outstation Package ({breakdown?.includedKm || getMinKm(days)} Km included): <span className="font-bold text-slate-800">₹{Number(breakdown.basePrice).toLocaleString("en-IN")}</span>
                         </div>
                       )}
                       {breakdown?.excessKmCharge !== undefined && breakdown.excessKmCharge > 0 && (
-                        <div>
-                          • Excess Kilometer Charge: <span className="font-bold text-slate-800">+ ₹{breakdown.excessKmCharge.toLocaleString("en-IN")}</span>
+                        <div className="text-saffron-700 font-semibold">
+                          • Excess Kilometer Charge ({breakdown.excessKm || 0} Km × ₹{breakdown.excessRate || selectedVehicle?.pricePerKm}/km): <span className="font-bold">+ ₹{Number(breakdown.excessKmCharge).toLocaleString("en-IN")}</span>
                         </div>
                       )}
                     </>
                   )}
                   {breakdown?.isExtrapolated && (
-                    <div className="text-[10px] text-saffron-700 bg-saffron-50 p-2.5 rounded-lg border border-saffron-100 font-bold mt-2">
-                      💡 Estimated price for extended trips. Final billing will be adjusted based on actual travel.
+                    <div className="text-amber-600 text-[11px] pt-1 border-t border-orange-100">
+                      * Rate extrapolated based on highest configured tier.
                     </div>
                   )}
                 </div>

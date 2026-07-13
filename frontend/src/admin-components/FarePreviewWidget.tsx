@@ -36,16 +36,11 @@ export default function FarePreviewWidget({
       : undefined;
 
   // Calculate fare using the pure shared formula
-  const { price, breakdown } = calculateOutstationFare(tiers, pricePerKm, days, km);
+  const { price, breakdown } = calculateOutstationFare(tiers, pricePerKm, days, km, outstationPrice);
 
-  const excessRate = flatOverride
-    ? pricePerKm
-    : exactMatch
-    ? exactMatch.price
-    : pricePerKm;
-  const excessKmVal = exactMatch
-    ? Math.max(0, km - exactMatch.minKm)
-    : Math.max(0, km - getMinKm(days));
+  const excessRate = (breakdown as any)?.excessRate || pricePerKm;
+  const excessKmVal = (breakdown as any)?.excessKm || 0;
+  const includedKmVal = (breakdown as any)?.includedKm || days * 250;
 
   // Local fare — use admin-set value or fallback to per-km calculation
   const localFareDisplay =
@@ -188,42 +183,36 @@ export default function FarePreviewWidget({
 
           <div className="flex justify-between items-center">
             <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-              {outstationPrice && outstationPrice > 0 ? "Estimated Trip Price:" : "Outstation Trip Price:"}
+              Estimated Trip Price:
             </span>
-            {!exactMatch && !(outstationPrice && outstationPrice > 0) ? (
-              <span className="text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-100 px-2.5 py-1 rounded">
-                No tier for {days} day(s) — add one below
-              </span>
-            ) : (
-              <span className="text-sm font-extrabold text-slate-900 font-cinzel">
-                ₹{(outstationPrice && outstationPrice > 0 ? outstationPrice * days : price).toLocaleString("en-IN")}
-              </span>
-            )}
+            <span className="text-sm font-extrabold text-slate-900 font-cinzel">
+              ₹{price.toLocaleString("en-IN")}
+            </span>
           </div>
-          {outstationPrice && outstationPrice > 0 && (
-            <p className="text-[9px] text-slate-500 mt-1 font-semibold">
-              {days} day(s) × ₹{outstationPrice.toLocaleString("en-IN")}/day = ₹{(outstationPrice * days).toLocaleString("en-IN")}
-            </p>
-          )}
 
-          {/* Outstation breakdown details */}
-          {exactMatch && (
-            <div className="text-[9px] text-slate-500 mt-1.5 font-semibold space-y-0.5">
-              {flatOverride ? (
-                <span className="text-saffron-600 font-bold">
-                  🏷️ Flat Day Price: ₹{flatOverride.toLocaleString("en-IN")} +
-                  Excess ({excessKmVal}km × ₹{excessRate}/km) = ₹
-                  {breakdown.excessKmCharge.toLocaleString("en-IN")}
-                </span>
-              ) : (
-                <span>
-                  Base: ₹{breakdown.basePrice.toLocaleString("en-IN")} + Excess
-                  ({excessKmVal}km × ₹{excessRate}/km) = ₹
-                  {breakdown.excessKmCharge.toLocaleString("en-IN")}
-                </span>
-              )}
+          {(breakdown as any)?.requiresCustomQuote && (
+            <div className="mt-2 bg-amber-50 border border-amber-200 rounded-lg p-2 text-[10px] text-amber-800 font-semibold">
+              ⚠️ For trips &gt; 4 days, customers will see a message prompting them to talk/WhatsApp directly for a custom quote.
             </div>
           )}
+
+          {/* Outstation breakdown details showing fixed km + excess */}
+          <div className="text-[10px] text-slate-600 mt-2 font-semibold bg-slate-50 p-2 rounded border border-slate-100 space-y-1">
+            <div className="flex justify-between">
+              <span>• Fixed Package ({includedKmVal} Km included):</span>
+              <span className="font-bold text-slate-800">₹{breakdown.basePrice.toLocaleString("en-IN")}</span>
+            </div>
+            {excessKmVal > 0 && (
+              <div className="flex justify-between text-saffron-700">
+                <span>• Extra Distance ({excessKmVal} Km × ₹{excessRate}/km):</span>
+                <span className="font-bold">+ ₹{breakdown.excessKmCharge.toLocaleString("en-IN")}</span>
+              </div>
+            )}
+            <div className="border-t border-slate-200 pt-1 flex justify-between font-bold text-slate-900">
+              <span>Total Estimated Fare:</span>
+              <span>₹{price.toLocaleString("en-IN")}</span>
+            </div>
+          </div>
         </div>
       </div>
 

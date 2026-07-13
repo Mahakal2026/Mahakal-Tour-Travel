@@ -13,6 +13,23 @@ export default function OutstationTiersTable({
   value = [],
   onChange,
 }: OutstationTiersTableProps) {
+  const handlePopulateDays1To4 = () => {
+    const existingDays = new Set(value.map((t) => Number(t.days)));
+    const newTiers = [...value];
+    for (let d = 1; d <= 4; d++) {
+      if (!existingDays.has(d)) {
+        newTiers.push({
+          days: d,
+          minKm: d * 250,
+          price: 12,
+          flatDayPrice: undefined,
+        });
+      }
+    }
+    newTiers.sort((a, b) => a.days - b.days);
+    onChange(newTiers);
+  };
+
   const handleAdd = () => {
     const nextDay = value.length > 0 ? Math.max(...value.map((t) => t.days)) + 1 : 1;
     const newTier: OutstationTier = {
@@ -46,13 +63,25 @@ export default function OutstationTiersTable({
           <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700">Outstation Pricing Matrix</h4>
           <p className="text-[10px] text-slate-500 mt-0.5">Configure day-wise minimum distance, per-km rate, and optional flat day price.</p>
         </div>
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="bg-saffron-600 hover:bg-saffron-700 text-white font-bold py-1.5 px-3 rounded-lg text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-        >
-          <Plus className="w-3.5 h-3.5" /> Add Tier
-        </button>
+        <div className="flex items-center gap-2">
+          {value.length < 4 && (
+            <button
+              type="button"
+              onClick={handlePopulateDays1To4}
+              className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-1.5 px-3 rounded-lg text-xs flex items-center gap-1 transition-colors cursor-pointer"
+              title="Populate Day 1 (250km), Day 2 (500km), Day 3 (750km), Day 4 (1000km)"
+            >
+              ⚡ Pre-fill Days 1-4
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="bg-saffron-600 hover:bg-saffron-700 text-white font-bold py-1.5 px-3 rounded-lg text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" /> Add Tier
+          </button>
+        </div>
       </div>
 
       {/* Info box explaining flat day price */}
