@@ -5,6 +5,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import { X, Compass, Navigation, ChevronLeft, Calendar, Info, Loader2, User, Phone, ArrowRight } from "lucide-react";
 import { buildAndSendBooking, sendBookingInquiry } from "@/lib/whatsapp";
 import { apiClient } from "@/lib/api";
+import { getMinKm } from "@/lib/fareFormula";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface BookButtonWrapperProps {
@@ -42,6 +43,13 @@ export function BookButtonWrapper({ vehicle, className, label }: BookButtonWrapp
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  // Auto-sync KM field when days changes (same as FareCalculator)
+  useEffect(() => {
+    if (tripType === "outstation-round") {
+      setKm(getMinKm(days));
+    }
+  }, [days, tripType]);
 
   // Dynamic Fare Calculation Effect
   useEffect(() => {
@@ -284,7 +292,11 @@ export function BookButtonWrapper({ vehicle, className, label }: BookButtonWrapp
                             <div className="flex items-center border border-slate-200 bg-white rounded-xl overflow-hidden">
                               <button
                                 type="button"
-                                onClick={() => setDays(Math.max(1, days - 1))}
+                                onClick={() => {
+                                  const newDays = Math.max(1, days - 1);
+                                  setDays(newDays);
+                                  setKm(getMinKm(newDays));
+                                }}
                                 className="px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold border-r border-slate-200 cursor-pointer transition-colors"
                               >
                                 -
@@ -292,12 +304,20 @@ export function BookButtonWrapper({ vehicle, className, label }: BookButtonWrapp
                               <input
                                 type="number"
                                 value={days}
-                                onChange={(e) => setDays(Math.max(1, parseInt(e.target.value) || 1))}
+                                onChange={(e) => {
+                                  const newDays = Math.max(1, parseInt(e.target.value) || 1);
+                                  setDays(newDays);
+                                  setKm(getMinKm(newDays));
+                                }}
                                 className="w-full text-center py-2 focus:outline-none font-bold text-sm bg-white"
                               />
                               <button
                                 type="button"
-                                onClick={() => setDays(days + 1)}
+                                onClick={() => {
+                                  const newDays = days + 1;
+                                  setDays(newDays);
+                                  setKm(getMinKm(newDays));
+                                }}
                                 className="px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold border-l border-slate-200 cursor-pointer transition-colors"
                               >
                                 +
@@ -326,7 +346,7 @@ export function BookButtonWrapper({ vehicle, className, label }: BookButtonWrapp
                         </div>
 
                         <p className="text-[10px] text-slate-400 italic">
-                          * Minimum daily billing limit of 250 Km applies ({days * 250} Km total).
+                          * Minimum daily billing limit of {getMinKm(1)} Km applies ({getMinKm(days)} Km total).
                         </p>
                       </div>
                     )}

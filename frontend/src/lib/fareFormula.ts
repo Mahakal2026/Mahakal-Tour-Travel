@@ -1,3 +1,4 @@
+
 /**
  * ⚠️ KEEP IN SYNC — this formula is duplicated in backend/src/modules/vehicle/fare.controller.ts
  * because frontend and backend are separate codebases. Any change here MUST be mirrored there, and vice versa.
@@ -11,13 +12,17 @@ export interface FareCalculationResult {
   };
 }
 
+export function getMinKm(days: number): number {
+  return days * 250;
+}
+
 export function calculateOutstationFare(
   tiers: { days: number; minKm: number; price: number }[],
   pricePerKm: number,
   days: number,
   km: number
 ): FareCalculationResult {
-  const minAllowedKm = days * 250;
+  const minAllowedKm = getMinKm(days);
   
   let basePrice = 0;
   let excessKm = 0;

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Calculator, Info } from "lucide-react";
-import { calculateOutstationFare } from "@/lib/fareFormula";
+import { calculateOutstationFare, getMinKm } from "@/lib/fareFormula";
 import { OutstationTier } from "@/types";
 
 interface FarePreviewWidgetProps {
@@ -19,6 +19,11 @@ export default function FarePreviewWidget({
   const [days, setDays] = useState<number>(1);
   const [km, setKm] = useState<number>(250);
 
+  // Auto-sync KM field when days changes
+  useEffect(() => {
+    setKm(getMinKm(days));
+  }, [days]);
+
   // Check if standard or custom tier matches
   const exactMatch = tiers.find((t) => Number(t.days) === days);
   
@@ -26,7 +31,7 @@ export default function FarePreviewWidget({
   const { price, breakdown } = calculateOutstationFare(tiers, pricePerKm, days, km);
 
   const excessRate = exactMatch ? (exactMatch.price > 100 ? pricePerKm : exactMatch.price) : pricePerKm;
-  const excessKmVal = exactMatch ? Math.max(0, km - exactMatch.minKm) : Math.max(0, km - days * 250);
+  const excessKmVal = exactMatch ? Math.max(0, km - exactMatch.minKm) : Math.max(0, km - getMinKm(days));
 
   return (
     <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4 text-slate-800 my-4">

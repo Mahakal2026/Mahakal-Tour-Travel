@@ -7,6 +7,7 @@ import CabSelect from "../ui/CabSelect";
 import { buildAndSendBooking } from "@/lib/whatsapp";
 import { apiClient } from "@/lib/api";
 import axios from "axios";
+import { getMinKm } from "@/lib/fareFormula";
 
 interface FareCalculatorProps {
   vehicles: Vehicle[];
@@ -40,6 +41,13 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
       setSelectedVehicleName(activeVehicles[0].name);
     }
   }, [activeVehicles, selectedVehicleName]);
+
+  // Auto-sync KM field when days or tripType changes
+  useEffect(() => {
+    if (tripType === "outstation-round") {
+      setKm(getMinKm(days));
+    }
+  }, [days, tripType]);
 
   // Fetch calculation on input changes
   useEffect(() => {
@@ -264,7 +272,7 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
                 </div>
 
                 <div className="text-xs text-slate-500 italic bg-slate-50 p-4 rounded-xl border border-slate-200">
-                  ⚠️ Outstation policy: Minimum billing of 250 Km applies per day of booking.
+                  ⚠️ Outstation policy: Minimum billing of {getMinKm(1)} Km applies per day of booking.
                 </div>
               </div>
             )}
@@ -344,10 +352,10 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
                   ) : (
                     <>
                       <div>
-                        • Minimum Outstation billing distance ({days} Days × 250 Km): <span className="font-bold text-slate-800">{days * 250} Km</span>
+                        • Minimum Outstation billing distance ({days} Days × {getMinKm(1)} Km): <span className="font-bold text-slate-800">{getMinKm(days)} Km</span>
                       </div>
                       <div>
-                        • Billable distance: <span className="font-bold text-slate-800">{Math.max(km, days * 250)} Km</span>
+                        • Billable distance: <span className="font-bold text-slate-800">{Math.max(km, getMinKm(days))} Km</span>
                       </div>
                       {breakdown?.basePrice && (
                         <div>

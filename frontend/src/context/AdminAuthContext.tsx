@@ -36,8 +36,14 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (res.data?.success && res.data?.data?.admin) {
         setUser(res.data.data.admin);
       }
-    } catch (err) {
-      console.error("Failed to verify token admin details", err);
+    } catch (err: any) {
+      // 401 is expected when token is expired/invalid — not a bug
+      const status = err?.response?.status;
+      if (status === 401) {
+        console.debug("Admin token expired or invalid, clearing session");
+      } else {
+        console.error("Failed to verify token admin details", err);
+      }
       // Clean up on verification failure
       setAccessToken("");
       setUser(null);

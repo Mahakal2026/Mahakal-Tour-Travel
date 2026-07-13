@@ -30,6 +30,9 @@ adminApi.interceptors.request.use((config) => {
   return config;
 });
 
+// Endpoints that should NOT trigger the silent refresh flow
+const AUTH_ENDPOINTS = ["/admin/refresh", "/admin/login", "/admin/verify"];
+
 adminApi.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -38,7 +41,11 @@ adminApi.interceptors.response.use(
       error.response?.status === 401 ||
       error.response?.data?.error?.code === "UNAUTHORIZED";
 
-    if (isUnauthorized && !originalRequest._retry) {
+    // Skip refresh logic for auth endpoints themselves to avoid loops
+    const requestUrl: string = originalRequest?.url || "";
+    const isAuthEndpoint = AUTH_ENDPOINTS.some((ep) => requestUrl.includes(ep));
+
+    if (isUnauthorized && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
 
       try {
@@ -59,12 +66,15 @@ adminApi.interceptors.response.use(
           return adminApi(originalRequest);
         }
       } catch (refreshError) {
-        // Refresh token failed or expired
+        // Refresh token failed or expired — clear state silently
         setAccessToken("");
         if (typeof window !== "undefined") {
           localStorage.removeItem("admin_token");
-          // Fire event or redirect
-          window.location.href = "/admin/login";
+          // Only redirect if on an admin-protected page
+          if (window.location.pathname.startsWith("/admin") &&
+              window.location.pathname !== "/admin/login") {
+            window.location.href = "/admin/login";
+          }
         }
         return Promise.reject(refreshError);
       }

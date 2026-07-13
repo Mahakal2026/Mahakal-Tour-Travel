@@ -13,9 +13,9 @@ async function getHomeData() {
   const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
   try {
     const [vehiclesRes, packagesRes, reviewsRes] = await Promise.all([
-      fetch(`${url}/vehicles`, { cache: "no-store" }).then((res) => res.json()),
-      fetch(`${url}/packages`, { cache: "no-store" }).then((res) => res.json()),
-      fetch(`${url}/reviews`, { cache: "no-store" }).then((res) => res.json()),
+      fetch(`${url}/vehicles`, { cache: "no-store", signal: AbortSignal.timeout(5000) }).then((res) => res.json()),
+      fetch(`${url}/packages`, { cache: "no-store", signal: AbortSignal.timeout(5000) }).then((res) => res.json()),
+      fetch(`${url}/reviews`, { cache: "no-store", signal: AbortSignal.timeout(5000) }).then((res) => res.json()),
     ]);
 
     return {
@@ -27,7 +27,8 @@ async function getHomeData() {
     if (err.digest === "DYNAMIC_SERVER_USAGE" || err.message?.includes("Dynamic server usage")) {
       throw err;
     }
-    console.error("Home page Server Component fetch error:", err.message || err);
+    // Log as warn (not error) — page gracefully falls back to empty arrays
+    console.warn("Home page: backend unavailable, rendering with empty data.", err.message || err);
     return { vehicles: [], packages: [], reviews: [] };
   }
 }
