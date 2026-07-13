@@ -11,6 +11,7 @@ export const createVehicleSchema = z.object({
   }),
   pricePerKm: z.coerce.number().min(0, "Price per KM must be 0 or greater"),
   localPrice: z.coerce.number().min(0, "Local price must be 0 or greater").optional(),
+  outstationPrice: z.coerce.number().min(0, "Outstation price must be 0 or greater").optional(),
   subtitle: z.string().trim().max(100, "Subtitle cannot exceed 100 characters").optional(),
   image: z.string().min(1, "Vehicle image URL is required"),
   outstationTiers: z.preprocess(
@@ -29,6 +30,7 @@ export const createVehicleSchema = z.object({
         days: z.coerce.number().int().positive(),
         minKm: z.coerce.number().min(0),
         price: z.coerce.number().min(0),
+        flatDayPrice: z.coerce.number().min(0).optional().nullable(),
       })
     ).optional()
   ),

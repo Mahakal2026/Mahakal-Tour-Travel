@@ -2,6 +2,7 @@ export interface OutstationTier {
   days: number;
   minKm: number;
   price: number;
+  flatDayPrice?: number; // Optional: Admin-set flat base price for this day tier (overrides km-based calculation)
 }
 
 export interface Vehicle {
@@ -12,6 +13,7 @@ export interface Vehicle {
   acType: "AC" | "Non-AC";
   pricePerKm: number;
   localPrice?: number;
+  outstationPrice?: number; // Admin-set flat per-day rate for outstation trips
   subtitle?: string;
   image: string; // URL from API
   isActive: boolean;

@@ -17,7 +17,7 @@ export function getMinKm(days: number): number {
 }
 
 export function calculateOutstationFare(
-  tiers: { days: number; minKm: number; price: number }[],
+  tiers: { days: number; minKm: number; price: number; flatDayPrice?: number }[],
   pricePerKm: number,
   days: number,
   km: number
@@ -34,17 +34,24 @@ export function calculateOutstationFare(
     const exactMatch = sortedTiers.find((t) => t.days === days);
 
     if (exactMatch) {
-      const tierPrice = exactMatch.price;
-      if (tierPrice > 100) {
-        // Flat base price tier (e.g. ₹2,500 flat rate for day 1)
-        basePrice = tierPrice;
+      // Check flatDayPrice first (admin-set manual flat base price)
+      if (exactMatch.flatDayPrice && exactMatch.flatDayPrice > 0) {
+        basePrice = exactMatch.flatDayPrice;
         excessKm = Math.max(0, km - exactMatch.minKm);
         excessCharge = excessKm * pricePerKm;
       } else {
-        // Price per Km tier (e.g. ₹12/km)
-        basePrice = minAllowedKm * tierPrice;
-        excessKm = Math.max(0, km - minAllowedKm);
-        excessCharge = excessKm * tierPrice;
+        const tierPrice = exactMatch.price;
+        if (tierPrice > 100) {
+          // Flat base price tier (e.g. ₹2,500 flat rate for day 1)
+          basePrice = tierPrice;
+          excessKm = Math.max(0, km - exactMatch.minKm);
+          excessCharge = excessKm * pricePerKm;
+        } else {
+          // Price per Km tier (e.g. ₹12/km)
+          basePrice = minAllowedKm * tierPrice;
+          excessKm = Math.max(0, km - minAllowedKm);
+          excessCharge = excessKm * tierPrice;
+        }
       }
     } else {
       const maxTier = sortedTiers[sortedTiers.length - 1];

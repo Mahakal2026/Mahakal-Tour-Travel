@@ -8,8 +8,11 @@ export const createBookingSchema = z.object({
     .optional()
     .refine(
       (val) => {
-        if (!val) return true;
+        // Treat empty/blank string as absent (no phone given)
+        if (!val || val.trim() === "") return true;
         const cleanVal = val.replace(/[^\d+]/g, "");
+        // Must be empty (no phone) or a valid Indian mobile number
+        if (cleanVal === "") return true;
         return /^(?:\+91|91|0)?[6-9]\d{9}$/.test(cleanVal);
       },
       {

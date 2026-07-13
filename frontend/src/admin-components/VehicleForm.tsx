@@ -31,6 +31,7 @@ export default function VehicleForm({
       acType: "AC" as "AC" | "Non-AC",
       pricePerKm: 12,
       localPrice: undefined as number | undefined,
+      outstationPrice: undefined as number | undefined,
       subtitle: "",
       isActive: true,
       outstationTiers: [] as OutstationTier[],
@@ -39,6 +40,7 @@ export default function VehicleForm({
 
   const pricePerKm = watch("pricePerKm");
   const localPrice = watch("localPrice");
+  const outstationPrice = watch("outstationPrice");
   const outstationTiers = watch("outstationTiers");
 
   useEffect(() => {
@@ -50,6 +52,7 @@ export default function VehicleForm({
         acType: initialData.acType,
         pricePerKm: initialData.pricePerKm,
         localPrice: initialData.localPrice,
+        outstationPrice: initialData.outstationPrice,
         subtitle: initialData.subtitle || "",
         isActive: initialData.isActive,
         outstationTiers: initialData.outstationTiers || [],
@@ -63,6 +66,7 @@ export default function VehicleForm({
         acType: "AC",
         pricePerKm: 12,
         localPrice: undefined,
+        outstationPrice: undefined,
         subtitle: "",
         isActive: true,
         outstationTiers: [],
@@ -86,6 +90,7 @@ export default function VehicleForm({
       ...data,
       pricePerKm: parseFloat(data.pricePerKm),
       localPrice: data.localPrice ? parseFloat(data.localPrice) : undefined,
+      outstationPrice: data.outstationPrice ? parseFloat(data.outstationPrice) : undefined,
     };
     await onSubmit(cleanedData, imageFile);
   };
@@ -169,6 +174,18 @@ export default function VehicleForm({
                 placeholder="e.g. 1800"
               />
             </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                Outstation Price
+                <span className="ml-1.5 text-[9px] bg-saffron-100 text-saffron-700 px-1.5 py-0.5 rounded font-extrabold tracking-wide">PER DAY FLAT</span>
+              </label>
+              <input
+                type="number"
+                {...register("outstationPrice")}
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-saffron-500 outline-none text-sm font-bold"
+                placeholder="e.g. 2500"
+              />
+            </div>
             <div className="sm:col-span-2">
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Subtitle Description</label>
               <input
@@ -198,6 +215,7 @@ export default function VehicleForm({
             tiers={outstationTiers || []}
             pricePerKm={Number(pricePerKm) || 0}
             localPrice={localPrice ? Number(localPrice) : undefined}
+            outstationPrice={outstationPrice ? Number(outstationPrice) : undefined}
           />
 
           {/* Image Upload Input */}

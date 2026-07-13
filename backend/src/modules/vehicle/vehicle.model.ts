@@ -4,6 +4,7 @@ export interface IOutstationTier {
   days: number;
   minKm: number;
   price: number;
+  flatDayPrice?: number; // Admin-set flat base price override
 }
 
 export interface IVehicle extends Document {
@@ -13,6 +14,7 @@ export interface IVehicle extends Document {
   acType: "AC" | "Non-AC";
   pricePerKm: number;
   localPrice?: number;
+  outstationPrice?: number; // Admin-set flat per-day outstation rate
   subtitle?: string;
   image: string;
   isActive: boolean;
@@ -58,6 +60,10 @@ const VehicleSchema = new Schema<IVehicle>(
       type: Number,
       min: [0, "Local price cannot be negative"],
     },
+    outstationPrice: {
+      type: Number,
+      min: [0, "Outstation price cannot be negative"],
+    },
     subtitle: {
       type: String,
       trim: true,
@@ -73,6 +79,7 @@ const VehicleSchema = new Schema<IVehicle>(
           days: { type: Number, required: true },
           minKm: { type: Number, required: true },
           price: { type: Number, required: true },
+          flatDayPrice: { type: Number, default: null }, // Optional: admin manual flat day price
         },
       ],
       default: [],

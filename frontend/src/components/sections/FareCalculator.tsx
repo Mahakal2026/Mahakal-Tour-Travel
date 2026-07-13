@@ -19,7 +19,7 @@ interface FareBreakdown {
   isExtrapolated?: boolean;
 }
 
-export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
+export default function FareCalculator({ vehicles: vehiclesProp = [] }: FareCalculatorProps) {
   const [tripType, setTripType] = useState<"local" | "outstation-round">("local");
   const [selectedVehicleName, setSelectedVehicleName] = useState<string>("");
   const [km, setKm] = useState<number>(250);
@@ -32,6 +32,29 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
 
   const [customerName, setCustomerName] = useState<string>("");
   const [customerPhone, setCustomerPhone] = useState<string>("");
+
+  // Client-side vehicles state — starts with SSR prop, self-fetches if empty
+  const [vehicles, setVehicles] = useState<Vehicle[]>(vehiclesProp);
+  const [vehiclesLoading, setVehiclesLoading] = useState<boolean>(false);
+
+  // If SSR sent empty vehicles (backend was unavailable), fetch client-side
+  useEffect(() => {
+    if (vehiclesProp.length > 0) {
+      setVehicles(vehiclesProp);
+      return;
+    }
+    // SSR gave empty — fetch fresh from API on client
+    setVehiclesLoading(true);
+    const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
+    fetch(`${url}/vehicles`)
+      .then((res) => res.json())
+      .then((json) => {
+        const data: Vehicle[] = json?.data || (Array.isArray(json) ? json : []);
+        setVehicles(data.filter((v) => v.isActive));
+      })
+      .catch(() => {/* silently ignore — user sees empty state */})
+      .finally(() => setVehiclesLoading(false));
+  }, [vehiclesProp]);
 
   const activeVehicles = vehicles.filter((v) => v.isActive);
   const selectedVehicle = activeVehicles.find((v) => v.name === selectedVehicleName) || activeVehicles[0];
@@ -78,11 +101,9 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
           payload.days = days;
         }
 
-        console.log("FareCalculator: Sending request to", apiClient.defaults.baseURL + "/fare/calculate", "with payload:", payload);
         const res = await apiClient.post("/fare/calculate", payload, {
           signal: controller.signal,
         });
-        console.log("FareCalculator: Response received:", res.data);
         if (res.data?.success) {
           setPrice(res.data.data.price);
           setBreakdown(res.data.data.breakdown || null);
@@ -91,10 +112,7 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
           setBreakdown(res.data.breakdown || null);
         }
       } catch (err: any) {
-        if (axios.isCancel(err)) {
-          console.log("FareCalculator: Request aborted.");
-          return;
-        }
+        if (axios.isCancel(err)) return;
         console.error("Fare calculation error:", err);
         setError("Unable to calculate fare. Please try again.");
         setPrice(null);
@@ -197,6 +215,11 @@ export default function FareCalculator({ vehicles = [] }: FareCalculatorProps) {
                     value={selectedVehicleName}
                     onChange={setSelectedVehicleName}
                   />
+                ) : vehiclesLoading ? (
+                  <div className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-400 flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-saffron-500" />
+                    Loading cabs...
+                  </div>
                 ) : (
                   <div className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-400">
                     No cabs available

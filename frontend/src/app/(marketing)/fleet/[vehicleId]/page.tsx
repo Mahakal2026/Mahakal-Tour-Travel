@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Users, Snowflake, CheckCircle2, MessageCircle } from "lucide-react";
@@ -12,7 +14,7 @@ interface PageProps {
 async function getVehicle(id: string) {
   const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
   try {
-    const res = await fetch(`${url}/vehicles/${id}`, { next: { revalidate: 60 } });
+    const res = await fetch(`${url}/vehicles/${id}`, { cache: "no-store" });
     if (!res.ok) return null;
     const json = await res.json();
     return json?.data || json;
@@ -46,7 +48,7 @@ export default async function VehicleDetailsPage({ params }: PageProps) {
   const { vehicleId } = await params;
   const vehicle = await getVehicle(vehicleId);
 
-  if (!vehicle || !vehicle.isActive) {
+  if (!vehicle) {
     notFound();
   }
 

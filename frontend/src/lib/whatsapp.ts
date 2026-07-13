@@ -113,14 +113,16 @@ export async function buildAndSendBooking({
   }
   messageText += `\nPlease confirm availability. Thank you!`;
 
-  // Clean phone number for validator (remove all non-digit and non-plus characters)
-  const cleanPhone = customerPhone.replace(/[^\d+]/g, "");
+  // Clean phone number for validator
+  // Must be undefined (not "") when not provided — empty string fails backend validation
+  const rawPhone = customerPhone.replace(/[^\d+]/g, "").trim();
+  const cleanPhone = rawPhone.length >= 10 ? rawPhone : undefined;
 
   // 2. Fire non-blocking POST to /api/bookings
   apiClient
     .post("/bookings", {
-      name: customerName,
-      phone: cleanPhone || undefined,
+      name: customerName || undefined,
+      phone: cleanPhone,
       vehicle: normalizeVehicleType(vehicleType),
       tripType:
         tripType === "package-inquiry"
@@ -137,8 +139,8 @@ export async function buildAndSendBooking({
       rawMessage: messageText,
       source: "website",
     })
-    .catch((error) => {
-      console.error("Non-blocking booking log request failed:", error);
+    .catch(() => {
+      // Silently swallow — booking log is non-critical, WhatsApp still opens
     });
 
   // 3. Immediately redirect to WhatsApp

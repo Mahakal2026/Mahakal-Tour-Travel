@@ -51,7 +51,7 @@ export default async function PackageDetailsPage({ params }: PageProps) {
   const { packageId } = await params;
   const pkg = await getPackage(packageId);
 
-  if (!pkg || !pkg.isActive) {
+  if (!pkg) {
     notFound();
   }
 

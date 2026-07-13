@@ -71,6 +71,10 @@ export const errorHandler = (
 
   if (statusCode >= 500) {
     logger.error(`🔥 500 Error on ${reqInfo}: ${err.stack || logMessage}`);
+  } else if (statusCode === 401 && req.originalUrl.includes("/admin/verify")) {
+    // Expected: frontend polls /admin/verify on every page load to check session
+    // A 401 here just means the user is not logged in — log silently at debug level
+    logger.debug(`🔒 401 on ${reqInfo}: ${logMessage}`);
   } else {
     logger.warn(`⚠️ ${statusCode} Error on ${reqInfo}: ${logMessage}`);
   }
