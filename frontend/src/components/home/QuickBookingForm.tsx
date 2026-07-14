@@ -1,6 +1,6 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { Check } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -18,6 +18,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import { bookingFormSchema, type BookingFormData } from "@/lib/schemas";
 import { sendBookingInquiry } from "@/lib/whatsapp";
 import { Vehicle } from "@/types";
+import PremiumDatePicker from "./PremiumDatePicker";
 
 export default function QuickBookingForm({ vehicles = [] }: { vehicles?: Vehicle[] }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,6 +29,7 @@ export default function QuickBookingForm({ vehicles = [] }: { vehicles?: Vehicle
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<BookingFormData>({
     resolver: zodResolver(bookingFormSchema),
@@ -40,6 +42,8 @@ export default function QuickBookingForm({ vehicles = [] }: { vehicles?: Vehicle
       date: "",
     },
   });
+
+  const selectedDate = watch("date");
 
   // Geolocation detection handler (reverse-geocoding via OpenStreetMap)
   const handleLocateMe = () => {
@@ -131,6 +135,35 @@ export default function QuickBookingForm({ vehicles = [] }: { vehicles?: Vehicle
       setIsSubmitting(false);
     }
   };
+
+
+  const passengerOptions = [
+    "1 Passenger",
+    "2 Passengers",
+    "3 Passengers",
+    "4 Passengers",
+    "5+ Passengers",
+  ];
+
+  const [passengerOpen, setPassengerOpen] = useState(false);
+
+  const passengerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        passengerRef.current &&
+        !passengerRef.current.contains(e.target as Node)
+      ) {
+        setPassengerOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="bg-slate-900/ backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-7 shadow-2xl relative">
@@ -266,7 +299,7 @@ export default function QuickBookingForm({ vehicles = [] }: { vehicles?: Vehicle
         </div>
         {/* Date & Passengers */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
+          {/* <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
               Date
             </label>
@@ -284,28 +317,76 @@ export default function QuickBookingForm({ vehicles = [] }: { vehicles?: Vehicle
               <p className="text-red-400 text-xs mt-1">{errors.date.message}</p>
             )}
           </div>
+           */}
+          <div>
+            <PremiumDatePicker
+              value={selectedDate}
+              onChange={(value) => setValue("date", value, { shouldValidate: true })}
+            />
+            {errors.date && (
+              <p className="text-red-400 text-xs mt-1">{errors.date.message}</p>
+            )}
+          </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
               Passengers
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
-                <Users className="w-4 h-4" />
-              </span>
-              <select
-                value={passengers}
-                onChange={(e) => setPassengers(e.target.value)}
-                className="w-full pl-10 pr-10 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:border-transparent transition-all text-sm text-white appearance-none cursor-pointer text-slate-400"
+
+            <div className="relative" ref={passengerRef}>
+              {/* Button */}
+              <button
+                type="button"
+                onClick={() => setPassengerOpen(!passengerOpen)}
+                className={`w-full h-[52px] rounded-xl border transition-all duration-300
+      ${passengerOpen
+                    ? "border-saffron-500 ring-2 ring-saffron-500/30"
+                    : "border-white/10 hover:border-white/20"
+                  }
+      bg-white/5 backdrop-blur-md
+      px-4 flex items-center justify-between`}
               >
-                <option className="bg-slate-900 text-white" value="1 Passenger">1 Passenger</option>
-                <option className="bg-slate-900 text-white" value="2 Passengers">2 Passengers</option>
-                <option className="bg-slate-900 text-white" value="3 Passengers">3 Passengers</option>
-                <option className="bg-slate-900 text-white" value="4 Passengers">4 Passengers</option>
-                <option className="bg-slate-900 text-white" value="5+ Passengers">5+ Passengers</option>
-              </select>
-              <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 pointer-events-none">
-                <ChevronDown className="w-4 h-4" />
-              </span>
+                <div className="flex items-center gap-3">
+                  <Users className="w-4 h-4 text-slate-400" />
+
+                  <span className="text-white text-sm font-medium">
+                    {passengers}
+                  </span>
+                </div>
+
+                <ChevronDown
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${passengerOpen ? "rotate-180" : ""
+                    }`}
+                />
+              </button>
+
+              {/* Dropdown */}
+              {passengerOpen && (
+                <div
+                  className="absolute left-0 right-0 mt-2 z-50  rounded-2xl  border border-white/10  bg-slate-950/95  backdrop-blur-2xl  shadow-[0_20px_60px_rgba(0,0,0,.45)]  overflow-hidden  animate-in fade-in zoom-in-95 duration-200"
+                >
+                  {passengerOptions.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => {
+                        setPassengers(item);
+                        setPassengerOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-all
+            ${passengers === item
+                          ? "bg-saffron-500/15 text-saffron-400"
+                          : "text-slate-300 hover:bg-white/5 hover:text-white"
+                        }`}
+                    >
+                      <span>{item}</span>
+
+                      {passengers === item && (
+                        <Check className="w-4 h-4 text-saffron-400" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -18,7 +18,7 @@ export const globalLimiter = rateLimit({
 
 export const bookingLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Max 10 requests per 15 minutes per IP
+  max: process.env.NODE_ENV === "production" ? 15 : 100, // Max 15 per 15m in prod, 100 in dev for testing
   handler: (req, res) => {
     sendError(
       res,

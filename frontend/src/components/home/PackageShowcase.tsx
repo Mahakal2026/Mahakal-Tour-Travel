@@ -6,7 +6,28 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { Package } from "@/types";
 
-export default function PackageShowcase({ packages = [] }: { packages?: Package[] }) {
+import React, { useState, useEffect } from "react";
+
+export default function PackageShowcase({ packages: packagesProp = [] }: { packages?: Package[] }) {
+  const [packages, setPackages] = useState<Package[]>(packagesProp);
+
+  useEffect(() => {
+    setPackages(packagesProp);
+  }, [packagesProp]);
+
+  useEffect(() => {
+    if (packagesProp.length === 0) {
+      const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
+      fetch(`${url}/packages`)
+        .then((res) => res.json())
+        .then((json) => {
+          const data: Package[] = json?.data || (Array.isArray(json) ? json : []);
+          setPackages(data);
+        })
+        .catch(() => {});
+    }
+  }, [packagesProp]);
+
   const displayPackages = packages.filter((p) => p.isActive).slice(0, 3); // show 3 on home page
 
   if (displayPackages.length === 0) return null;

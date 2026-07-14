@@ -136,6 +136,9 @@ export async function buildAndSendBooking({
           : "outstation-round",
       routeOrPackage,
       estimatedFare: price,
+      vehicleId: vehicle?._id,
+      km: km,
+      days: days,
       rawMessage: messageText,
       source: "website",
     })

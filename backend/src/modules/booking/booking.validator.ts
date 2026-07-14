@@ -27,6 +27,9 @@ export const createBookingSchema = z.object({
   }),
   routeOrPackage: z.string().trim().max(200, "Route/Package description too long").optional(),
   estimatedFare: z.number().min(0, "Estimated fare cannot be negative").optional(),
+  vehicleId: z.string().optional(),
+  km: z.number().min(0).optional(),
+  days: z.number().min(1).optional(),
   rawMessage: z.string().trim().min(1, "Raw WhatsApp message text is required"),
   source: z.string().trim().default("website"),
 });

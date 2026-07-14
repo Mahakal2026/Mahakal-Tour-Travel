@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import StarRating from "../ui/StarRating";
 import { Review } from "@/types";
 
@@ -8,39 +8,31 @@ interface TestimonialsProps {
   testimonials: Review[];
 }
 
-const FALLBACK_TESTIMONIALS = [
-  {
-    _id: "fb-1",
-    customerName: "Rahul K.",
-    initials: "RK",
-    titleLocation: "Regular Customer, Gwalior",
-    rating: 5,
-    reviewText: "Booked Mahakal Travels for a family trip from Gwalior to Ujjain. The driver was exceptionally disciplined, car was very hygienic, and they took care of all toll routes and stops perfectly. Highly recommended!",
-    isActive: true,
-  },
-  {
-    _id: "fb-2",
-    customerName: "Sanjay Sharma",
-    initials: "SS",
-    titleLocation: "Business Manager, Lashkar",
-    rating: 5,
-    reviewText: "I have used their local cab package (8h/80km) for corporate delegates visiting Gwalior. Transparent pricing and beautiful condition of the Innova Crysta left a great impression.",
-    isActive: true,
-  },
-  {
-    _id: "fb-3",
-    customerName: "Megha Singh",
-    initials: "MS",
-    titleLocation: "Traveller, Indore",
-    rating: 5,
-    reviewText: "Very supportive customer helpdesk. Had to modify the ride date last minute for an Orchha trip and they resolved it instantly with zero cancellation fee. Honest values!",
-    isActive: true,
-  },
-];
+export default function Testimonials({ testimonials: testimonialsProp = [] }: TestimonialsProps) {
+  const [reviews, setReviews] = useState<Review[]>(testimonialsProp);
 
-export default function Testimonials({ testimonials = [] }: TestimonialsProps) {
-  const activeReviews = testimonials.filter((r) => r.isActive);
-  const displayReviews = activeReviews.length > 0 ? activeReviews : FALLBACK_TESTIMONIALS;
+  useEffect(() => {
+    setReviews(testimonialsProp);
+  }, [testimonialsProp]);
+
+  useEffect(() => {
+    if (testimonialsProp.length === 0) {
+      const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
+      fetch(`${url}/reviews`)
+        .then((res) => res.json())
+        .then((json) => {
+          const data: Review[] = json?.data || (Array.isArray(json) ? json : []);
+          setReviews(data);
+        })
+        .catch(() => {});
+    }
+  }, [testimonialsProp]);
+
+  const activeReviews = reviews.filter((r) => r.isActive);
+
+  if (activeReviews.length === 0) {
+    return null;
+  }
 
   return (
     <section id="testimonials" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
@@ -52,7 +44,7 @@ export default function Testimonials({ testimonials = [] }: TestimonialsProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayReviews.map((item) => {
+          {activeReviews.map((item) => {
             const avatarInitials = item.initials || item.customerName.substring(0, 2).toUpperCase();
             return (
               <div

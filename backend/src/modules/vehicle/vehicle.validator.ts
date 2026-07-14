@@ -2,8 +2,8 @@ import { z } from "zod";
 
 export const createVehicleSchema = z.object({
   name: z.string().trim().min(1, "Vehicle name is required"),
-  type: z.enum(["sedan", "suv", "premium-suv", "tempo"], {
-    message: "Type must be one of: sedan, suv, premium-suv, tempo",
+  type: z.enum(["hatchback", "sedan", "suv", "premium-suv", "tempo"], {
+    message: "Type must be one of: hatchback, sedan, suv, premium-suv, tempo",
   }),
   capacity: z.string().trim().min(1, "Vehicle capacity is required"),
   acType: z.enum(["AC", "Non-AC"], {

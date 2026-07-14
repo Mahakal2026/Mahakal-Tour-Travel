@@ -7,6 +7,9 @@ export interface IBookingInquiry extends Document {
   tripType: "local" | "one-way" | "outstation-round" | "package-inquiry" | "general-contact";
   routeOrPackage?: string;
   estimatedFare?: number;
+  vehicleId?: string;
+  km?: number;
+  days?: number;
   rawMessage: string;
   status: "pending" | "confirmed" | "cancelled";
   source: string;
@@ -47,6 +50,18 @@ const BookingInquirySchema = new Schema<IBookingInquiry>(
     estimatedFare: {
       type: Number,
       min: 0,
+    },
+    vehicleId: {
+      type: String,
+      trim: true,
+    },
+    km: {
+      type: Number,
+      min: 0,
+    },
+    days: {
+      type: Number,
+      min: 1,
     },
     rawMessage: {
       type: String,

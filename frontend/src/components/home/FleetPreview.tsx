@@ -6,7 +6,28 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { Vehicle } from "@/types";
 
-export default function FleetPreview({ vehicles = [] }: { vehicles?: Vehicle[] }) {
+import React, { useState, useEffect } from "react";
+
+export default function FleetPreview({ vehicles: vehiclesProp = [] }: { vehicles?: Vehicle[] }) {
+  const [vehicles, setVehicles] = useState<Vehicle[]>(vehiclesProp);
+
+  useEffect(() => {
+    setVehicles(vehiclesProp);
+  }, [vehiclesProp]);
+
+  useEffect(() => {
+    if (vehiclesProp.length === 0) {
+      const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
+      fetch(`${url}/vehicles`)
+        .then((res) => res.json())
+        .then((json) => {
+          const data: Vehicle[] = json?.data || (Array.isArray(json) ? json : []);
+          setVehicles(data);
+        })
+        .catch(() => { });
+    }
+  }, [vehiclesProp]);
+
   const displayVehicles = vehicles.filter((v) => v.isActive).slice(0, 6); // show up to 6 on home page
 
   const getBadge = (name: string, index: number) => {
@@ -70,54 +91,55 @@ export default function FleetPreview({ vehicles = [] }: { vehicles?: Vehicle[] }
                       />
                     </div>
 
-                  {/* Content */}
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-extrabold text-slate-900">{vehicle.name}</h3>
-                    {vehicle.subtitle && (
-                      <p className="text-slate-400 text-xs mt-1 uppercase tracking-wider font-semibold">
-                        {vehicle.subtitle}
-                      </p>
-                    )}
+                    {/* Content */}
+                    <div className="p-6 flex flex-col flex-grow">
+                      <h3 className="text-xl font-extrabold text-slate-900">{vehicle.name}</h3>
+                      {vehicle.subtitle && (
+                        <p className="text-slate-400 text-xs mt-1 uppercase tracking-wider font-semibold">
+                          {vehicle.subtitle}
+                        </p>
+                      )}
 
-                    <div className="grid grid-cols-2 gap-4 my-5 bg-white p-3.5 rounded-xl border border-slate-100 text-xs text-slate-600">
-                      <div>
-                        <span className="block text-slate-400 mb-0.5">Capacity</span>
-                        <span className="font-bold text-slate-900 flex items-center gap-1">
-                          <Users className="w-3.5 h-3.5 text-saffron-500" />
-                          {vehicle.capacity}
-                        </span>
+                      <div className="grid grid-cols-2 gap-4 my-5 bg-white p-3.5 rounded-xl border border-slate-100 text-xs text-slate-600">
+                        <div>
+                          <span className="block text-slate-400 mb-0.5">Capacity</span>
+                          <span className="font-bold text-slate-900 flex items-center gap-1">
+                            <Users className="w-3.5 h-3.5 text-saffron-500" />
+                            {vehicle.capacity}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="block text-slate-400 mb-0.5">A/C status</span>
+                          <span className="font-bold text-slate-900 flex items-center gap-1">
+                            <Snowflake
+                              className="w-3.5 h-3.5 text-sky-500 animate-spin"
+                              style={{ animationDuration: "4s" }}
+                            />
+                            {vehicle.acType}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="block text-slate-400 mb-0.5">A/C status</span>
-                        <span className="font-bold text-slate-900 flex items-center gap-1">
-                          <Snowflake
-                            className="w-3.5 h-3.5 text-sky-500 animate-spin"
-                            style={{ animationDuration: "4s" }}
-                          />
-                          {vehicle.acType}
-                        </span>
-                      </div>
-                    </div>
 
-                    <div className="mt-auto border-t border-slate-200 pt-5 flex items-center justify-between">
-                      <div>
-                        <span className="text-xs text-slate-400 block">Outstation rate</span>
-                        <span className="text-xl font-extrabold text-slate-900">
-                          ₹{vehicle.pricePerKm}{" "}
-                          <span className="text-xs text-slate-500 font-normal">/ Km</span>
-                        </span>
+                      <div className="mt-auto border-t border-slate-200 pt-5 flex items-center justify-between">
+                        <div>
+                          <span className="text-xs text-slate-400 block">Outstation rate</span>
+                          <span className="text-xl font-extrabold text-slate-900">
+                            ₹{vehicle.pricePerKm}{" "}
+                            <span className="text-xs text-slate-500 font-normal">/ Km</span>
+                          </span>
+                        </div>
+                        <Link
+                          href={`/fleet/${vehicle._id}`}
+                          className="flex items-center justify-center bg-saffron-600 hover:bg-slate-900/90 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-all cursor-pointer touch-target"
+                        >
+                          View Details
+                        </Link>
                       </div>
-                      <Link
-                        href={`/fleet/${vehicle._id}`}
-                        className="bg-slate-900 hover:bg-saffron-600 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-all touch-target text-center"
-                      >
-                        View Details
-                      </Link>
                     </div>
                   </div>
-                </div>
-              </AnimatedSection>
-            )})}
+                </AnimatedSection>
+              )
+            })}
           </div>
         )}
       </div>

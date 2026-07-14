@@ -9,7 +9,7 @@ export interface IOutstationTier {
 
 export interface IVehicle extends Document {
   name: string;
-  type: "sedan" | "suv" | "premium-suv" | "tempo";
+  type: "hatchback" | "sedan" | "suv" | "premium-suv" | "tempo";
   capacity: string;
   acType: "AC" | "Non-AC";
   pricePerKm: number;
@@ -34,8 +34,8 @@ const VehicleSchema = new Schema<IVehicle>(
       type: String,
       required: [true, "Vehicle type is required"],
       enum: {
-        values: ["sedan", "suv", "premium-suv", "tempo"],
-        message: "Type must be one of: sedan, suv, premium-suv, tempo",
+        values: ["hatchback", "sedan", "suv", "premium-suv", "tempo"],
+        message: "Type must be one of: hatchback, sedan, suv, premium-suv, tempo",
       },
     },
     capacity: {
