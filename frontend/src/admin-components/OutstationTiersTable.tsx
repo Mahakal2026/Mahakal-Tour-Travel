@@ -88,8 +88,8 @@ export default function OutstationTiersTable({
       <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 flex gap-2.5 items-start text-[10px] text-blue-700">
         <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-blue-500" />
         <span>
-          <strong>Flat Day Price (₹)</strong> — Apne haath se har day ke liye ek fixed base price set karo (jaise Local ka 8h/80km flat price).
-          Agar set hai to yeh automatically per-km calculation ko override karega. Khaali chhod do to per-km rate se calculate hoga.
+          <strong>Fixed Estimate Price (₹)</strong> — Set a fixed base price (like ₹3000 for Day 1). 
+          If set, this estimate will be used for the included KM, and the vehicle's master <strong>"Price Per Km"</strong> will automatically apply to any extra KM beyond the Min KM.
         </span>
       </div>
 
@@ -104,11 +104,9 @@ export default function OutstationTiersTable({
               <tr>
                 <th className="px-3 py-2.5">Days</th>
                 <th className="px-3 py-2.5">Min KM</th>
-                <th className="px-3 py-2.5">Price per KM (₹)</th>
                 <th className="px-3 py-2.5">
                   <span className="flex items-center gap-1">
-                    Flat Day Price (₹)
-                    <span className="bg-saffron-100 text-saffron-700 rounded px-1 py-0.5 text-[8px] font-extrabold tracking-wide">NEW</span>
+                    Fixed Estimate Price (₹)
                   </span>
                 </th>
                 <th className="px-3 py-2.5 text-right">Actions</th>
@@ -143,16 +141,11 @@ export default function OutstationTiersTable({
                     />
                   </td>
 
-                  {/* Price per KM */}
-                  <td className="px-3 py-2">
+                  {/* Price per KM (Hidden as we now use master vehicle pricePerKm) */}
+                  <td className="hidden">
                     <input
-                      type="number"
-                      min={0}
+                      type="hidden"
                       value={tier.price}
-                      onChange={(e) =>
-                        handleChangeField(index, "price", parseFloat(e.target.value) || 0)
-                      }
-                      className="w-20 px-2 py-1 border border-slate-200 rounded focus:ring-1 focus:ring-saffron-500 outline-none text-center font-bold text-saffron-600"
                     />
                   </td>
 

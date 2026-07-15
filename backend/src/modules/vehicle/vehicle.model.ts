@@ -14,7 +14,6 @@ export interface IVehicle extends Document {
   acType: "AC" | "Non-AC";
   pricePerKm: number;
   localPrice?: number;
-  outstationPrice?: number; // Admin-set flat per-day outstation rate
   subtitle?: string;
   image: string;
   isActive: boolean;
@@ -59,10 +58,6 @@ const VehicleSchema = new Schema<IVehicle>(
     localPrice: {
       type: Number,
       min: [0, "Local price cannot be negative"],
-    },
-    outstationPrice: {
-      type: Number,
-      min: [0, "Outstation price cannot be negative"],
     },
     subtitle: {
       type: String,

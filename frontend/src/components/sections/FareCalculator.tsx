@@ -256,9 +256,12 @@ export default function FareCalculator({ vehicles: vehiclesProp = [] }: FareCalc
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 font-bold text-xs">KM</span>
                         <input
                           type="number"
-                          min={1}
+                          min={getMinKm(days)}
                           value={km}
-                          onChange={(e) => setKm(Math.max(1, parseInt(e.target.value) || 0))}
+                          onBlur={() => {
+                            if (km < getMinKm(days)) setKm(getMinKm(days));
+                          }}
+                          onChange={(e) => setKm(parseInt(e.target.value) || 0)}
                           className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:bg-white text-sm font-semibold"
                         />
                       </div>
@@ -420,7 +423,7 @@ export default function FareCalculator({ vehicles: vehiclesProp = [] }: FareCalc
                       </div>
                       {breakdown?.basePrice !== undefined && (
                         <div>
-                          • Base Outstation Package ({breakdown?.includedKm || getMinKm(days)} Km included): <span className="font-bold text-slate-800">₹{Number(breakdown.basePrice).toLocaleString("en-IN")}</span>
+                          • {breakdown.calculationType === "tier_flat_override" ? "Fixed Package (Admin Estimate)" : "Base Outstation Package"} ({breakdown?.includedKm || getMinKm(days)} Km included): <span className="font-bold text-slate-800">₹{Number(breakdown.basePrice).toLocaleString("en-IN")}</span>
                         </div>
                       )}
                       {breakdown?.excessKmCharge !== undefined && breakdown.excessKmCharge > 0 && (

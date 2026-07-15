@@ -63,17 +63,8 @@ export const calculateFare = async (req: Request, res: Response): Promise<void> 
       breakdown.customQuoteMessage = "Trips longer than 4 days require custom pricing. Please contact us on call or WhatsApp for the best estimate.";
     }
 
-    // Priority 1: Admin-set flat per-day outstation rate (outstationPrice)
-    if (vehicle.outstationPrice && vehicle.outstationPrice > 0) {
-      basePrice = vehicle.outstationPrice * numDays;
-      includedKm = standardMinKm;
-      excessKm = Math.max(0, numKm - includedKm);
-      excessRate = rateOutstation;
-      excessCharge = excessKm * excessRate;
-      calculationType = "admin_flat_day_rate";
-    } 
-    // Priority 2: Configured Outstation Tiers
-    else if (vehicle.outstationTiers && vehicle.outstationTiers.length > 0) {
+    // Priority 1: Configured Outstation Tiers
+    if (vehicle.outstationTiers && vehicle.outstationTiers.length > 0) {
       const sortedTiers = [...vehicle.outstationTiers].sort((a, b) => a.days - b.days);
       const exactMatch = sortedTiers.find((t) => Number(t.days) === numDays);
 
@@ -83,13 +74,13 @@ export const calculateFare = async (req: Request, res: Response): Promise<void> 
         if (exactMatch.flatDayPrice && exactMatch.flatDayPrice > 0) {
           basePrice = exactMatch.flatDayPrice;
           excessKm = Math.max(0, numKm - includedKm);
-          excessRate = exactMatch.price > 0 && exactMatch.price < 100 ? exactMatch.price : rateOutstation;
+          excessRate = rateOutstation;
           excessCharge = excessKm * excessRate;
           calculationType = "tier_flat_override";
         } else {
           const tierPrice = exactMatch.price || rateOutstation;
           if (tierPrice > 100) {
-            // Flat base price stored in tier.price
+            // Flat base price stored in tier.price (legacy)
             basePrice = tierPrice;
             excessKm = Math.max(0, numKm - includedKm);
             excessRate = rateOutstation;
@@ -97,9 +88,9 @@ export const calculateFare = async (req: Request, res: Response): Promise<void> 
             calculationType = "tier_flat_rate";
           } else {
             // Per-km rate tier
-            basePrice = includedKm * tierPrice;
+            basePrice = includedKm * rateOutstation;
             excessKm = Math.max(0, numKm - includedKm);
-            excessRate = tierPrice;
+            excessRate = rateOutstation;
             excessCharge = excessKm * excessRate;
             calculationType = "tier_per_km_rate";
           }
@@ -127,7 +118,7 @@ export const calculateFare = async (req: Request, res: Response): Promise<void> 
         }
       }
     } 
-    // Priority 3: Standard fallback (250 km/day × pricePerKm)
+    // Priority 2: Standard fallback (250 km/day × pricePerKm)
     else {
       includedKm = standardMinKm;
       basePrice = includedKm * rateOutstation;

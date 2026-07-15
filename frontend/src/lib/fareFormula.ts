@@ -20,8 +20,7 @@ export function calculateOutstationFare(
   tiers: { days: number; minKm: number; price: number; flatDayPrice?: number | null }[],
   pricePerKm: number,
   days: number,
-  km: number,
-  outstationPrice?: number
+  km: number
 ): FareCalculationResult {
   const numDays = Number(days) || 1;
   const numKm = Number(km) || numDays * 250;
@@ -35,16 +34,8 @@ export function calculateOutstationFare(
   let isExtrapolated = false;
   let requiresCustomQuote = numDays > 4;
 
-  // Priority 1: Admin-set flat per-day outstation rate (outstationPrice)
-  if (outstationPrice && outstationPrice > 0) {
-    basePrice = outstationPrice * numDays;
-    includedKm = standardMinKm;
-    excessKm = Math.max(0, numKm - includedKm);
-    excessRate = pricePerKm;
-    excessCharge = excessKm * excessRate;
-  }
-  // Priority 2: Configured Outstation Tiers
-  else if (tiers && tiers.length > 0) {
+  // Priority 1: Configured Outstation Tiers
+  if (tiers && tiers.length > 0) {
     const sortedTiers = [...tiers].sort((a, b) => a.days - b.days);
     const exactMatch = sortedTiers.find((t) => Number(t.days) === numDays);
 
@@ -54,7 +45,7 @@ export function calculateOutstationFare(
       if (exactMatch.flatDayPrice && exactMatch.flatDayPrice > 0) {
         basePrice = exactMatch.flatDayPrice;
         excessKm = Math.max(0, numKm - includedKm);
-        excessRate = exactMatch.price > 0 && exactMatch.price < 100 ? exactMatch.price : pricePerKm;
+        excessRate = pricePerKm;
         excessCharge = excessKm * excessRate;
       } else {
         const tierPrice = exactMatch.price || pricePerKm;
@@ -64,9 +55,9 @@ export function calculateOutstationFare(
           excessRate = pricePerKm;
           excessCharge = excessKm * excessRate;
         } else {
-          basePrice = includedKm * tierPrice;
+          basePrice = includedKm * pricePerKm;
           excessKm = Math.max(0, numKm - includedKm);
-          excessRate = tierPrice;
+          excessRate = pricePerKm;
           excessCharge = excessKm * excessRate;
         }
       }
@@ -90,7 +81,7 @@ export function calculateOutstationFare(
       }
     }
   }
-  // Priority 3: Standard fallback (250 km/day × pricePerKm)
+  // Priority 2: Standard fallback (250 km/day × pricePerKm)
   else {
     includedKm = standardMinKm;
     basePrice = includedKm * pricePerKm;

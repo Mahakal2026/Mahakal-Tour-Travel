@@ -13,7 +13,6 @@ export interface Vehicle {
   acType: "AC" | "Non-AC";
   pricePerKm: number;
   localPrice?: number;
-  outstationPrice?: number; // Admin-set flat per-day rate for outstation trips
   subtitle?: string;
   image: string; // URL from API
   isActive: boolean;

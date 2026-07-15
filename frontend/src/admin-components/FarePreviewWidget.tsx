@@ -9,14 +9,12 @@ interface FarePreviewWidgetProps {
   tiers: OutstationTier[];
   pricePerKm: number;
   localPrice?: number;
-  outstationPrice?: number; // Admin-set flat per-day rate
 }
 
 export default function FarePreviewWidget({
   tiers = [],
   pricePerKm,
   localPrice,
-  outstationPrice,
 }: FarePreviewWidgetProps) {
   const [days, setDays] = useState<number>(1);
   const [km, setKm] = useState<number>(250);
@@ -29,14 +27,8 @@ export default function FarePreviewWidget({
   // Check if standard or custom tier matches
   const exactMatch = tiers.find((t) => Number(t.days) === days);
 
-  // If flatDayPrice is set, use it as base price directly
-  const flatOverride =
-    exactMatch?.flatDayPrice && exactMatch.flatDayPrice > 0
-      ? exactMatch.flatDayPrice
-      : undefined;
-
   // Calculate fare using the pure shared formula
-  const { price, breakdown } = calculateOutstationFare(tiers, pricePerKm, days, km, outstationPrice);
+  const { price, breakdown } = calculateOutstationFare(tiers, pricePerKm, days, km);
 
   const excessRate = (breakdown as any)?.excessRate || pricePerKm;
   const excessKmVal = (breakdown as any)?.excessKm || 0;
@@ -151,10 +143,13 @@ export default function FarePreviewWidget({
               </span>
               <input
                 type="number"
-                min={1}
+                min={getMinKm(days)}
                 value={km}
+                onBlur={() => {
+                  if (km < getMinKm(days)) setKm(getMinKm(days));
+                }}
                 onChange={(e) =>
-                  setKm(Math.max(1, parseInt(e.target.value) || 0))
+                  setKm(parseInt(e.target.value) || 0)
                 }
                 className="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-saffron-500 text-xs font-semibold"
               />
@@ -164,23 +159,6 @@ export default function FarePreviewWidget({
 
         {/* Outstation price output */}
         <div className="border-t border-slate-100 pt-3">
-          {/* Admin-set flat day rate — shown prominently like local price */}
-          {outstationPrice !== undefined && outstationPrice > 0 ? (
-            <div className="mb-3 flex justify-between items-start">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Flat Day Rate (Admin-Set):</span>
-                <span className="text-[9px] text-saffron-600 font-semibold">✓ Per-day flat price — overrides tier-based calc</span>
-              </div>
-              <span className="text-sm font-extrabold text-saffron-700 font-cinzel">₹{outstationPrice.toLocaleString("en-IN")}<span className="text-[10px] text-slate-400 font-normal">/day</span></span>
-            </div>
-          ) : (
-            <div className="mb-3">
-              <p className="text-[9px] text-slate-400 font-semibold">
-                💡 "Outstation Price (Per Day Flat)" set nahi kiya — tier matrix ya per-km rate use hoga.
-              </p>
-            </div>
-          )}
-
           <div className="flex justify-between items-center">
             <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
               Estimated Trip Price:

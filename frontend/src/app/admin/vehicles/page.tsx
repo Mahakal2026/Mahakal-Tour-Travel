@@ -33,8 +33,8 @@ export default function VehiclesAdminPage() {
         headers: { "Content-Type": "multipart/form-data" },
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin_vehicles"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin_vehicles"] });
       setIsModalOpen(false);
     },
   });
@@ -45,8 +45,8 @@ export default function VehiclesAdminPage() {
         headers: { "Content-Type": "multipart/form-data" },
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin_vehicles"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin_vehicles"] });
       setIsModalOpen(false);
       setSelectedVehicle(null);
     },
@@ -56,8 +56,8 @@ export default function VehiclesAdminPage() {
     mutationFn: async ({ id, tiers }: { id: string; tiers: OutstationTier[] }) => {
       await adminApi.patch(`/admin/vehicles/${id}`, { outstationTiers: tiers });
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["admin_vehicles"] });
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({ queryKey: ["admin_vehicles"] });
       // Clear pending state
       setPendingTiers((prev) => {
         const copy = { ...prev };
@@ -71,8 +71,8 @@ export default function VehiclesAdminPage() {
     mutationFn: async (id: string) => {
       await adminApi.delete(`/admin/vehicles/${id}`);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin_vehicles"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin_vehicles"] });
     },
   });
 
