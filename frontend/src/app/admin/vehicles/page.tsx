@@ -283,7 +283,6 @@ export default function VehiclesAdminPage() {
                               tiers={activeTiers}
                               pricePerKm={v.pricePerKm}
                               localPrice={v.localPrice}
-                              outstationPrice={v.outstationPrice}
                             />
 
                             <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
