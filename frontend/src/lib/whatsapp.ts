@@ -1,4 +1,4 @@
-import { BUSINESS } from "./constants";
+  import { BUSINESS } from "./constants";
 import { apiClient } from "./api";
 
 /** Valid vehicle types accepted by the backend booking validator */
@@ -55,7 +55,7 @@ export async function buildAndSendBooking({
   breakdown,
   customerName = "Valued Customer",
   customerPhone = "",
-}: BookingPayload): Promise<void> {
+}: BookingPayload): Promise<{ success: boolean; error?: string }> {
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || BUSINESS.whatsappNumber;
 
   let messageText = `Hello Mahakal Tour & Travels, I would like to book a trip!\n\n`;
@@ -113,14 +113,11 @@ export async function buildAndSendBooking({
   }
   messageText += `\nPlease confirm availability. Thank you!`;
 
-  // Clean phone number for validator
-  // Must be undefined (not "") when not provided — empty string fails backend validation
-  const rawPhone = customerPhone.replace(/[^\d+]/g, "").trim();
-  const cleanPhone = rawPhone.length >= 10 ? rawPhone : undefined;
+  const rawPhone = customerPhone.replace(/[^\d]/g, "").trim();
+  const cleanPhone = rawPhone.length >= 10 ? rawPhone.slice(-10) : undefined;
 
-  // 2. Fire non-blocking POST to /api/bookings
-  apiClient
-    .post("/bookings", {
+  try {
+    await apiClient.post("/bookings", {
       name: customerName || undefined,
       phone: cleanPhone,
       vehicle: normalizeVehicleType(vehicleType),
@@ -141,15 +138,23 @@ export async function buildAndSendBooking({
       days: days,
       rawMessage: messageText,
       source: "website",
-    })
-    .catch(() => {
-      // Silently swallow — booking log is non-critical, WhatsApp still opens
     });
 
-  // 3. Immediately redirect to WhatsApp
-  if (typeof window !== "undefined") {
-    const encoded = encodeURIComponent(messageText);
-    window.open(`https://wa.me/${whatsappNumber}?text=${encoded}`, "_blank");
+    if (typeof window !== "undefined") {
+      const encoded = encodeURIComponent(messageText);
+      window.open(`https://wa.me/${whatsappNumber}?text=${encoded}`, "_blank");
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Booking verification or logging failed:", error);
+    const deepDetail =
+      error?.response?.data?.error?.details?.details?.[0]?.message ||
+      error?.response?.data?.error?.details?.[0]?.message ||
+      error?.response?.data?.error?.message ||
+      error?.response?.data?.message;
+    const errorMessage = deepDetail || error?.message || "Failed to verify and log booking inquiry on server.";
+    return { success: false, error: errorMessage };
   }
 }
 
@@ -176,24 +181,32 @@ export async function sendBookingInquiry(payload: {
   routeOrPackage?: string;
   estimatedFare?: number;
   messageText: string;
-}): Promise<void> {
-  // Fire public POST to /bookings
-  apiClient
-    .post("/bookings", {
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const rawPhone = payload.phone ? payload.phone.replace(/[^\d]/g, "").trim() : undefined;
+    const cleanPhone = rawPhone && rawPhone.length >= 10 ? rawPhone.slice(-10) : undefined;
+
+    await apiClient.post("/bookings", {
       name: payload.name,
-      phone: payload.phone ? payload.phone.replace(/[^\d+]/g, "") : undefined,
+      phone: cleanPhone,
       vehicle: normalizeVehicleType(payload.vehicle),
       tripType: payload.tripType === "one-way" ? "outstation-round" : payload.tripType,
       routeOrPackage: payload.routeOrPackage,
       estimatedFare: payload.estimatedFare,
       rawMessage: payload.messageText,
       source: "website",
-    })
-    .catch((error) => {
-      console.error("Non-blocking legacy log failed:", error);
     });
 
-  openWhatsApp(payload.messageText);
+    openWhatsApp(payload.messageText);
+    return { success: true };
+  } catch (error: any) {
+    console.error("sendBookingInquiry verification or logging failed:", error);
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to verify and log booking inquiry on server.";
+    return { success: false, error: errorMessage };
+  }
 }
 
 export function buildBookingMessage(data: {

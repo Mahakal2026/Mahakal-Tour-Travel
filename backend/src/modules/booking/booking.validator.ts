@@ -8,17 +8,20 @@ export const createBookingSchema = z.object({
     .optional()
     .refine(
       (val) => {
-        // Treat empty/blank string as absent (no phone given)
         if (!val || val.trim() === "") return true;
         const cleanVal = val.replace(/[^\d+]/g, "");
-        // Must be empty (no phone) or a valid Indian mobile number
         if (cleanVal === "") return true;
         return /^(?:\+91|91|0)?[6-9]\d{9}$/.test(cleanVal);
       },
       {
         message: "Invalid Indian phone number format (must be a valid 10-digit number, optionally prefixed with +91 or 91)",
       }
-    ),
+    )
+    .transform((val) => {
+      if (!val || val.trim() === "") return undefined;
+      const digits = val.replace(/[^\d]/g, "");
+      return digits.length >= 10 ? digits.slice(-10) : val;
+    }),
   vehicle: z.enum(["hatchback", "sedan", "suv", "premium-suv", "tempo"], {
     message: "Vehicle must be one of: hatchback, sedan, suv, premium-suv, tempo",
   }),

@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 import { AppError } from "../utils/appError";
+import { TokenBlocklist } from "../modules/admin/tokenBlocklist.model";
 
 export interface IAdminPayload {
   email: string;
@@ -17,11 +18,11 @@ declare global {
   }
 }
 
-export const auth = (
+export const auth = async (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
+): Promise<void> => {
   let token = req.cookies?.token || req.cookies?.accessToken || req.cookies?.admin_token;
 
   if (!token) {
@@ -42,6 +43,17 @@ export const auth = (
   }
 
   try {
+    const isBlocklisted = await TokenBlocklist.exists({ token });
+    if (isBlocklisted) {
+      return next(
+        new AppError(
+          "Access token has been revoked or logged out",
+          401,
+          "UNAUTHORIZED"
+        )
+      );
+    }
+
     const decoded = jwt.verify(
       token,
       env.JWT_SECRET

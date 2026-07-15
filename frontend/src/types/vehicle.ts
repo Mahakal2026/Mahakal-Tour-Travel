@@ -13,6 +13,7 @@ export interface Vehicle {
   acType: "AC" | "Non-AC";
   pricePerKm: number;
   localPrice?: number;
+  outstationPrice?: number;
   subtitle?: string;
   image: string; // URL from API
   isActive: boolean;

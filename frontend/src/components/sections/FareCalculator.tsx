@@ -7,7 +7,7 @@ import CabSelect from "../ui/CabSelect";
 import { buildAndSendBooking } from "@/lib/whatsapp";
 import { apiClient } from "@/lib/api";
 import axios from "axios";
-import { getMinKm } from "@/lib/fareFormula";
+import { getMinKm, calculateClientSideFare } from "@/lib/fareFormula";
 
 interface FareCalculatorProps {
   vehicles: Vehicle[];
@@ -57,7 +57,9 @@ export default function FareCalculator({ vehicles: vehiclesProp = [] }: FareCalc
         const data: Vehicle[] = json?.data || (Array.isArray(json) ? json : []);
         setVehicles(data.filter((v) => v.isActive));
       })
-      .catch(() => {/* silently ignore — user sees empty state */})
+      .catch((err) => {
+        console.error("Failed to fetch vehicles dynamically:", err);
+      })
       .finally(() => setVehiclesLoading(false));
   }, [vehiclesProp]);
 
@@ -117,11 +119,18 @@ export default function FareCalculator({ vehicles: vehiclesProp = [] }: FareCalc
           setBreakdown(res.data.breakdown || null);
         }
       } catch (err: any) {
-        if (axios.isCancel(err)) return;
-        console.error("Fare calculation error:", err);
-        setError("Unable to calculate fare. Please try again.");
-        setPrice(null);
-        setBreakdown(null);
+        if (axios.isCancel(err) || err.name === "AbortError") return;
+        try {
+          const fallback = calculateClientSideFare(selectedVehicle, tripType, km, days);
+          setPrice(fallback.price);
+          setBreakdown(fallback.breakdown);
+          setError(null);
+        } catch (fallbackErr) {
+          console.error("Fare calculation error:", err);
+          setError("Unable to calculate fare. Please try again.");
+          setPrice(null);
+          setBreakdown(null);
+        }
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false);
@@ -143,7 +152,16 @@ export default function FareCalculator({ vehicles: vehiclesProp = [] }: FareCalc
     if (!selectedVehicle) return;
     if (price === null) return;
 
-    await buildAndSendBooking({
+    if (customerPhone.trim()) {
+      const cleanDigits = customerPhone.replace(/[^\d]/g, "").slice(-10);
+      if (cleanDigits.length < 10 || !/^[6-9]\d{9}$/.test(cleanDigits)) {
+        setError("Please enter a valid 10-digit Indian mobile number (starting with 6, 7, 8, or 9).");
+        return;
+      }
+    }
+
+    setError(null);
+    const result = await buildAndSendBooking({
       vehicle: selectedVehicle,
       tripType,
       km: tripType !== "local" ? km : undefined,
@@ -153,6 +171,9 @@ export default function FareCalculator({ vehicles: vehiclesProp = [] }: FareCalc
       customerName: customerName.trim() || undefined,
       customerPhone: customerPhone.trim() || undefined,
     });
+    if (!result.success) {
+      setError(result.error || "Failed to confirm booking inquiry. Please check details and try again.");
+    }
   };
 
   return (

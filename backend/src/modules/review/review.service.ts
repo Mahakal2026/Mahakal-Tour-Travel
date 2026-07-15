@@ -23,8 +23,8 @@ export class ReviewService {
   /**
    * Get single review details by ID
    */
-  public static async getReviewById(id: string): Promise<IReview> {
-    const review = await Review.findById(id);
+  public static async getReviewById(id: string): Promise<any> {
+    const review = await Review.findById(id).lean();
     if (!review) {
       throw new AppError("Review not found", 404, "NOT_FOUND");
     }

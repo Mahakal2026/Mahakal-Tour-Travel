@@ -26,11 +26,16 @@ const BookingInquirySchema = new Schema<IBookingInquiry>(
     phone: {
       type: String,
       trim: true,
+      set: (v?: string) => {
+        if (!v) return v;
+        const digits = v.replace(/[^\d]/g, "");
+        return digits.length >= 10 ? digits.slice(-10) : v;
+      },
       validate: {
         validator: function (v: string) {
-          return !v || /^(?:\+91|91|0)?[6-9]\d{9}$/.test(v.replace(/[^\d+]/g, ""));
+          return !v || /^[6-9]\d{9}$/.test(v);
         },
-        message: (props) => `${props.value} is not a valid Indian phone number!`,
+        message: (props) => `${props.value} is not a valid 10-digit Indian phone number!`,
       },
     },
     vehicle: {

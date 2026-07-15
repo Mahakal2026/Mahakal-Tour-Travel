@@ -299,25 +299,6 @@ export default function QuickBookingForm({ vehicles = [] }: { vehicles?: Vehicle
         </div>
         {/* Date & Passengers */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
-              Date
-            </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
-                <Calendar className="w-4 h-4" />
-              </span>
-              <input
-                type="date"
-                {...register("date")}
-                className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:border-transparent transition-all text-sm text-white placeholder-slate-500 [color-scheme:dark]"
-              />
-            </div>
-            {errors.date && (
-              <p className="text-red-400 text-xs mt-1">{errors.date.message}</p>
-            )}
-          </div>
-           */}
           <div>
             <PremiumDatePicker
               value={selectedDate}

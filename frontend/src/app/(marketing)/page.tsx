@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 import HeroSection from "@/components/home/HeroSection";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
@@ -13,9 +13,9 @@ async function getHomeData() {
   const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
   try {
     const [vehiclesRes, packagesRes, reviewsRes] = await Promise.all([
-      fetch(`${url}/vehicles`, { cache: "no-store", signal: AbortSignal.timeout(5000) }).then((res) => res.json()),
-      fetch(`${url}/packages`, { cache: "no-store", signal: AbortSignal.timeout(5000) }).then((res) => res.json()),
-      fetch(`${url}/reviews`, { cache: "no-store", signal: AbortSignal.timeout(5000) }).then((res) => res.json()),
+      fetch(`${url}/vehicles`, { next: { revalidate: 60 }, signal: AbortSignal.timeout(5000) }).then((res) => res.json()),
+      fetch(`${url}/packages`, { next: { revalidate: 60 }, signal: AbortSignal.timeout(5000) }).then((res) => res.json()),
+      fetch(`${url}/reviews`, { next: { revalidate: 60 }, signal: AbortSignal.timeout(5000) }).then((res) => res.json()),
     ]);
 
     return {

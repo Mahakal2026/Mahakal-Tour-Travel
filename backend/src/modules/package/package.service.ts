@@ -23,8 +23,8 @@ export class PackageService {
   /**
    * Fetch single package details by ID
    */
-  public static async getPackageById(id: string): Promise<IPackage> {
-    const tourPackage = await TourPackage.findById(id);
+  public static async getPackageById(id: string): Promise<any> {
+    const tourPackage = await TourPackage.findById(id).lean();
     if (!tourPackage) {
       throw new AppError("Package not found", 404, "NOT_FOUND");
     }

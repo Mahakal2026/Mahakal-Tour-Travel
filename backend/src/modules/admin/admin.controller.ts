@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import AdminService from "./admin.service";
+import { TokenBlocklist } from "./tokenBlocklist.model";
 import { env } from "../../config/env";
 import { logger } from "../../config/logger";
 import { sendSuccess, sendError } from "../../utils/apiResponse";
@@ -69,6 +71,29 @@ export const logoutAdmin = async (req: Request, res: Response): Promise<void> =>
     sameSite: env.NODE_ENV === "production" ? "strict" : "lax",
     path: "/",
   });
+
+  // Extract access token from cookies or authorization header
+  let token = req.cookies?.token || req.cookies?.accessToken || req.cookies?.admin_token;
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    }
+  }
+
+  if (token) {
+    try {
+      const decoded: any = jwt.decode(token);
+      if (decoded && decoded.exp) {
+        const expiresAt = new Date(decoded.exp * 1000);
+        if (expiresAt > new Date()) {
+          await TokenBlocklist.create({ token, expiresAt });
+        }
+      }
+    } catch (err) {
+      logger.warn(`Failed to blocklist token on logout: ${err}`);
+    }
+  }
 
   logger.debug(`🔑 [ReqID: ${req.id}] Admin logged out: ${req.admin?.email}`);
 

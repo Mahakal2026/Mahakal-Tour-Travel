@@ -24,7 +24,7 @@ export default function Testimonials({ testimonials: testimonialsProp = [] }: Te
           const data: Review[] = json?.data || (Array.isArray(json) ? json : []);
           setReviews(data);
         })
-        .catch(() => {});
+        .catch((err) => console.warn("Could not load fresh client reviews:", err));
     }
   }, [testimonialsProp]);
 

@@ -2,6 +2,7 @@
 
 import { Landmark, ArrowRight } from "lucide-react";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import Image from "next/image";
 import SectionHeader from "@/components/ui/SectionHeader";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 
@@ -57,11 +58,12 @@ export default function TempleShowcase() {
             <AnimatedSection key={temple.name} delay={index * 0.1}>
               <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:shadow-2xl transition-all group h-full flex flex-col">
                 <div className="relative h-48 bg-slate-900 overflow-hidden">
-                  <img
+                  <Image
                     src={temple.image}
                     alt={temple.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-90"
-                    loading="lazy"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition-all duration-500 opacity-90"
                   />
                   <div className="absolute top-3 right-3 bg-saffron-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                     <Landmark className="w-3 h-3 inline mr-1" />

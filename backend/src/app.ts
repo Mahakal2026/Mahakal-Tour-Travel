@@ -22,6 +22,40 @@ import fareRoutes from "./modules/vehicle/fare.routes";
 
 const app = express();
 
+// Setup CORS configuration at the very top to handle preflight cleanly before body parsing
+const allowedOrigins = [
+  env.FRONTEND_URL,
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:3001",
+  "http://127.0.0.1:3001",
+  "http://192.168.110.58:3000",
+];
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      origin.startsWith("http://localhost:") ||
+      origin.startsWith("http://127.0.0.1:") ||
+      origin.startsWith("http://192.168.")
+    ) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Request-ID"],
+  exposedHeaders: ["X-Request-ID"],
+};
+
+app.use(cors(corsOptions));
+// Handle preflight OPTIONS requests cleanly across Express versions
+app.options("*", cors(corsOptions));
+
 // Secure HTTP headers
 app.use(helmet());
 
@@ -49,33 +83,6 @@ app.use((req, res, next) => {
   next();
 });
 app.use(mongoSanitize());
-
-// Setup CORS configuration using allowed frontend URL from environment configuration
-const allowedOrigins = [
-  env.FRONTEND_URL,
-  "http://localhost:3000",
-  "http://127.0.0.1:3000",
-  "http://192.168.110.58:3000",
-];
-
-const corsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Blocked by CORS policy"));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Request-ID"],
-  exposedHeaders: ["X-Request-ID"],
-};
-
-// Handle preflight OPTIONS requests for all routes
-app.options(/(.*)/, cors(corsOptions));
-
-app.use(cors(corsOptions));
 
 // Route Morgan HTTP request logs through Winston logger (production only to prevent console clutter in development)
 if (env.NODE_ENV === "production") {

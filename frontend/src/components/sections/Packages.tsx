@@ -1,48 +1,22 @@
 "use client";
+import Image from "next/image";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { FaClock, FaTags, FaWhatsapp } from "react-icons/fa";
 import { Package } from "@/types";
-import { sendBookingInquiry } from "@/lib/whatsapp";
+import PackageBookModal from "@/components/ui/PackageBookModal";
 
 interface PackagesProps {
   packages: Package[];
 }
 
 export default function Packages({ packages = [] }: PackagesProps) {
+  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const activePackages = packages.filter((p) => p.isActive);
 
-  const handleBookPackage = async (pkg: Package) => {
-    let formattedMessage = "";
-    let rateText = "";
-
-    if (pkg.pricingType === "km") {
-      rateText = pkg.price > 0 ? `₹${pkg.price}/Km` : "Based on Km";
-      formattedMessage = `Hello Mahakal Tour & Travels, I would like to get a custom quote for the package.\n\n` +
-        `*Package Details:*\n` +
-        `• *Package Name:* ${pkg.name}\n` +
-        `• *Duration:* ${pkg.duration}\n` +
-        `• *Estimated Rate:* ${rateText}\n\n` +
-        `Please confirm availability and share details. Thank you!`;
-    } else {
-      rateText = `₹${pkg.price.toLocaleString("en-IN")}`;
-      formattedMessage = `Hello Mahakal Tour & Travels, I would like to book a cab package.\n\n` +
-        `*Package Details:*\n` +
-        `• *Package Name:* ${pkg.name}\n` +
-        `• *Duration:* ${pkg.duration}\n` +
-        `• *Price:* ${rateText}\n\n` +
-        `Please confirm availability. Thank you!`;
-    }
-
-    await sendBookingInquiry({
-      name: "Valued Customer",
-      vehicle: "sedan", // default
-      tripType: "package-inquiry",
-      routeOrPackage: `${pkg.name} (${pkg.duration})`,
-      estimatedFare: pkg.pricingType === "km" ? undefined : pkg.price,
-      messageText: formattedMessage,
-    });
+  const handleBookPackage = (pkg: Package) => {
+    setSelectedPackage(pkg);
   };
 
 
@@ -71,10 +45,12 @@ export default function Packages({ packages = [] }: PackagesProps) {
                   {/* Image */}
                   <div className="h-56 relative bg-slate-100 overflow-hidden">
                     {p.image ? (
-                      <img
+                      <Image
                         src={p.image}
                         alt={p.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center font-bold text-slate-400">
@@ -176,6 +152,12 @@ export default function Packages({ packages = [] }: PackagesProps) {
           </div>
         )}
       </div>
+
+      <PackageBookModal
+        pkg={selectedPackage}
+        isOpen={!!selectedPackage}
+        onClose={() => setSelectedPackage(null)}
+      />
     </section>
   );
 }

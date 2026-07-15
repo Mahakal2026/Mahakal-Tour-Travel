@@ -7,6 +7,7 @@ import AnimatedSection from "@/components/ui/AnimatedSection";
 import { Package } from "@/types";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 
 export default function PackageShowcase({ packages: packagesProp = [] }: { packages?: Package[] }) {
   const [packages, setPackages] = useState<Package[]>(packagesProp);
@@ -24,7 +25,7 @@ export default function PackageShowcase({ packages: packagesProp = [] }: { packa
           const data: Package[] = json?.data || (Array.isArray(json) ? json : []);
           setPackages(data);
         })
-        .catch(() => {});
+        .catch((err) => console.warn("Could not load fresh packages on client:", err));
     }
   }, [packagesProp]);
 
@@ -64,14 +65,15 @@ export default function PackageShowcase({ packages: packagesProp = [] }: { packa
                 <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden hover:shadow-2xl transition-all flex flex-col h-full">
                   {/* Image */}
                   <div className="relative h-56 bg-white flex items-center justify-center p-4">
-                    <img
+                    <Image
                       src={
                         pkg.image ||
                         "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80"
                       }
                       alt={pkg.name}
-                      className="w-full h-full object-contain"
-                      loading="lazy"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-contain"
                     />
                     <div className="absolute bottom-4 left-4 bg-slate-950/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 z-10">
                       <Clock className="w-3.5 h-3.5 text-saffron-400" />

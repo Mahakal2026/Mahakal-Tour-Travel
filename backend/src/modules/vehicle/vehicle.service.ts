@@ -23,8 +23,8 @@ export class VehicleService {
   /**
    * Fetch a single vehicle by ID
    */
-  public static async getVehicleById(id: string): Promise<IVehicle> {
-    const vehicle = await Vehicle.findById(id);
+  public static async getVehicleById(id: string): Promise<any> {
+    const vehicle = await Vehicle.findById(id).lean();
     if (!vehicle) {
       throw new AppError("Vehicle not found", 404, "NOT_FOUND");
     }

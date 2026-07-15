@@ -1,7 +1,8 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { Clock, CircleCheck, MapPin, MessageCircle } from "lucide-react";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { getTouristTripSchema } from "@/lib/seo";
@@ -14,7 +15,7 @@ interface PageProps {
 async function getPackage(id: string) {
   const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
   try {
-    const res = await fetch(`${url}/packages/${id}`, { cache: "no-store" });
+    const res = await fetch(`${url}/packages/${id}`, { next: { revalidate: 60 } });
     if (!res.ok) return null;
     const json = await res.json();
     return json?.data || json;
@@ -84,10 +85,13 @@ export default async function PackageDetailsPage({ params }: PageProps) {
             {/* Image Section */}
             <div className="relative w-full md:w-1/2 h-64 sm:h-80 md:h-[420px] lg:h-[500px] overflow-hidden rounded-2xl bg-white flex items-center justify-center p-4">
               {pkg.image ? (
-                <img
+                <Image
                   src={pkg.image}
                   alt={pkg.title}
-                  className="w-full h-full object-contain"
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-contain"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-400 font-semibold">

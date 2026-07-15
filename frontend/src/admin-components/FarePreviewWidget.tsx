@@ -9,12 +9,14 @@ interface FarePreviewWidgetProps {
   tiers: OutstationTier[];
   pricePerKm: number;
   localPrice?: number;
+  outstationPrice?: number;
 }
 
 export default function FarePreviewWidget({
   tiers = [],
   pricePerKm,
   localPrice,
+  outstationPrice,
 }: FarePreviewWidgetProps) {
   const [days, setDays] = useState<number>(1);
   const [km, setKm] = useState<number>(250);
@@ -28,7 +30,7 @@ export default function FarePreviewWidget({
   const exactMatch = tiers.find((t) => Number(t.days) === days);
 
   // Calculate fare using the pure shared formula
-  const { price, breakdown } = calculateOutstationFare(tiers, pricePerKm, days, km);
+  const { price, breakdown } = calculateOutstationFare(tiers, pricePerKm, days, km, outstationPrice);
 
   const excessRate = (breakdown as any)?.excessRate || pricePerKm;
   const excessKmVal = (breakdown as any)?.excessKm || 0;

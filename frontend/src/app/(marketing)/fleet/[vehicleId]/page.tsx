@@ -1,7 +1,8 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { Users, Snowflake, CheckCircle2, MessageCircle } from "lucide-react";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { getVehicleProductSchema } from "@/lib/seo";
@@ -14,7 +15,7 @@ interface PageProps {
 async function getVehicle(id: string) {
   const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
   try {
-    const res = await fetch(`${url}/vehicles/${id}`, { cache: "no-store" });
+    const res = await fetch(`${url}/vehicles/${id}`, { next: { revalidate: 60 } });
     if (!res.ok) return null;
     const json = await res.json();
     return json?.data || json;
@@ -69,10 +70,13 @@ export default async function VehicleDetailsPage({ params }: PageProps) {
             {/* Image Section */}
             <div className="md:w-1/2 relative min-h-[300px] md:min-h-full bg-gradient-to-br from-slate-100 to-slate-200/50 flex items-center justify-center p-8">
               {vehicle.image ? (
-                <img
+                <Image
                   src={vehicle.image}
                   alt={vehicle.name}
-                  className="max-h-64 md:max-h-96 object-contain p-4"
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-contain p-4 max-h-64 md:max-h-96"
                 />
               ) : (
                 <div className="w-32 h-24 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">

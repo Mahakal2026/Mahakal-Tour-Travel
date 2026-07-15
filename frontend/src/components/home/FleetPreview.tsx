@@ -7,6 +7,7 @@ import AnimatedSection from "@/components/ui/AnimatedSection";
 import { Vehicle } from "@/types";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 
 export default function FleetPreview({ vehicles: vehiclesProp = [] }: { vehicles?: Vehicle[] }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>(vehiclesProp);
@@ -24,7 +25,7 @@ export default function FleetPreview({ vehicles: vehiclesProp = [] }: { vehicles
           const data: Vehicle[] = json?.data || (Array.isArray(json) ? json : []);
           setVehicles(data);
         })
-        .catch(() => { });
+        .catch((err) => console.warn("Could not load fresh fleet preview on client:", err));
     }
   }, [vehiclesProp]);
 
@@ -80,14 +81,15 @@ export default function FleetPreview({ vehicles: vehiclesProp = [] }: { vehicles
                       <div className="absolute top-4 left-4 bg-saffron-600 text-white font-bold text-xs uppercase px-3 py-1.5 rounded-full shadow z-10 class-badge-override" style={{ backgroundColor: badge.bg.includes("emerald") ? "#059669" : badge.bg.includes("purple") ? "#9333ea" : badge.bg.includes("amber") ? "#d97706" : "#ea580c" }}>
                         {badge.text}
                       </div>
-                      <img
+                      <Image
                         src={
                           vehicle.image ||
                           "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80"
                         }
                         alt={vehicle.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-90 p-0"
-                        loading="lazy"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-all duration-500 opacity-90 p-0"
                       />
                     </div>
 
