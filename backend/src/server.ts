@@ -12,19 +12,17 @@ const bootstrap = async () => {
   // Connect to Database
   await connectDB();
 
-  // Seed Admin user if none exists in the database
+  // Ensure default Admin user exists and matches credentials from env
   try {
-    const adminCount = await Admin.countDocuments();
-    if (adminCount === 0) {
-      logger.info("🌱 Seeding default Admin user...");
-      await Admin.create({
-        email: env.ADMIN_EMAIL,
-        password: env.ADMIN_PASSWORD_HASH, // Stored directly as hashed value from env
-      });
-      logger.info(`✅ Default Admin user created: ${env.ADMIN_EMAIL}`);
-    }
+    await Admin.deleteOne({ email: "admin@mahakaltravels.com" });
+    await Admin.findOneAndUpdate(
+      { email: env.ADMIN_EMAIL },
+      { email: env.ADMIN_EMAIL, password: env.ADMIN_PASSWORD_HASH },
+      { upsert: true, new: true }
+    );
+    logger.info(`✅ Default Admin user synced: ${env.ADMIN_EMAIL}`);
   } catch (error: any) {
-    logger.error(`❌ Failed to seed default Admin: ${error.message}`);
+    logger.error(`❌ Failed to sync default Admin: ${error.message}`);
   }
 
   // Start safety-net cron job (handled conditionally within the job for production only)

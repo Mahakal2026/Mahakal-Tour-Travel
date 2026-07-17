@@ -11,7 +11,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
   JWT_REFRESH_SECRET: z.string().min(1, "JWT_REFRESH_SECRET is required"),
   FRONTEND_URL: z.string().url().default("http://localhost:3000"),
-  ADMIN_EMAIL: z.string().email().default("admin@mahakaltravels.com"),
+  ADMIN_EMAIL: z.string().email().default("mahakaltravels20@gmail.com"),
   ADMIN_PASSWORD_HASH: z.string().min(1, "ADMIN_PASSWORD_HASH is required"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   IMAGEKIT_PUBLIC_KEY: z.string().min(1, "IMAGEKIT_PUBLIC_KEY is required"),

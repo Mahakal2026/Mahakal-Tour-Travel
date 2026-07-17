@@ -2,9 +2,11 @@ import mongoose from "mongoose";
 import { Vehicle } from "./modules/vehicle/vehicle.model";
 import { TourPackage } from "./modules/package/package.model";
 import { Review } from "./modules/review/review.model";
+import { Admin } from "./modules/admin/admin.model";
+import { env } from "./config/env";
 import { logger } from "./config/logger";
 
-const MONGODB_URI = "mongodb+srv://animate:k0Bz8eZfrJe7UM1E@mtt.qagmkjb.mongodb.net/test?retryWrites=true&w=majority";
+const MONGODB_URI = env.MONGODB_URI || "mongodb+srv://animate:k0Bz8eZfrJe7UM1E@mtt.qagmkjb.mongodb.net/test?retryWrites=true&w=majority";
 
 const vehiclesData = [
   {
@@ -191,6 +193,9 @@ async function seed() {
     await Review.deleteMany({});
     logger.info("Cleared old reviews.");
 
+    await Admin.deleteMany({});
+    logger.info("Cleared old admins.");
+
     // Seed new records
     await Vehicle.insertMany(vehiclesData);
     logger.info("Successfully seeded new vehicles!");
@@ -200,6 +205,12 @@ async function seed() {
 
     await Review.insertMany(reviewsData);
     logger.info("Successfully seeded new reviews!");
+
+    await Admin.create({
+      email: env.ADMIN_EMAIL,
+      password: env.ADMIN_PASSWORD_HASH,
+    });
+    logger.info(`Successfully seeded default Admin (${env.ADMIN_EMAIL})!`);
 
   } catch (err: any) {
     logger.error(`Seed error: ${err.message}`);

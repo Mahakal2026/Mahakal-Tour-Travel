@@ -132,7 +132,7 @@ Validate current session credentials.
     "data": {
       "message": "Token is valid",
       "admin": {
-        "email": "admin@mahakaltravels.com",
+        "email": "mahakaltravels20@gmail.com",
         "role": "admin"
       }
     }

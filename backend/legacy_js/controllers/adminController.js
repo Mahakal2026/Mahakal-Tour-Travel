@@ -5,7 +5,7 @@ const { JWT_SECRET, JWT_EXPIRES_IN } = require("../config/env");
 // Hardcoded admin credentials (can be moved to DB later)
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
 const ADMIN_PASSWORD_HASH = bcrypt.hashSync(
-  process.env.ADMIN_PASSWORD || "mahakal@2026",
+  process.env.ADMIN_PASSWORD || "Mahakal@2026",
   10
 );
 
