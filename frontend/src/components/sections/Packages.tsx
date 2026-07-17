@@ -35,7 +35,7 @@ export default function Packages({ packages = [] }: PackagesProps) {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {activePackages.map((p) => {
+            {activePackages.map((p, index) => {
               const fixed = p.pricingType !== "km";
               return (
                 <div
@@ -49,6 +49,7 @@ export default function Packages({ packages = [] }: PackagesProps) {
                         src={p.image}
                         alt={p.name}
                         fill
+                        priority={index <= 2}
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />

@@ -34,7 +34,7 @@ export default function OutstationTiersTable({
     const nextDay = value.length > 0 ? Math.max(...value.map((t) => t.days)) + 1 : 1;
     const newTier: OutstationTier = {
       days: nextDay,
-      minKm: nextDay * 250, // Default outstation policy minimum
+      minKm: nextDay * 250,
       price: 12,
       flatDayPrice: undefined,
     };
@@ -84,12 +84,12 @@ export default function OutstationTiersTable({
         </div>
       </div>
 
-      {/* Info box explaining flat day price */}
+      {/* Info box explaining fields */}
       <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 flex gap-2.5 items-start text-[10px] text-blue-700">
         <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-blue-500" />
         <span>
-          <strong>Fixed Estimate Price (₹)</strong> — Set a fixed base price (like ₹3000 for Day 1). 
-          If set, this estimate will be used for the included KM, and the vehicle's master <strong>"Price Per Km"</strong> will automatically apply to any extra KM beyond the Min KM.
+          <strong>Price Per Km (₹)</strong> — Per-km rate for excess km beyond Min KM. Must be a small number like 9, 11, 12 (not a flat fare).<br />
+          <strong>Fixed Estimate Price (₹)</strong> — Optional flat base price for the included KM (e.g. ₹2999 for 1-day/250km). If set, this overrides the km-based calculation for the base fare. Leave blank to auto-calculate from Price Per Km.
         </span>
       </div>
 
@@ -104,11 +104,8 @@ export default function OutstationTiersTable({
               <tr>
                 <th className="px-3 py-2.5">Days</th>
                 <th className="px-3 py-2.5">Min KM</th>
-                <th className="px-3 py-2.5">
-                  <span className="flex items-center gap-1">
-                    Fixed Estimate Price (₹)
-                  </span>
-                </th>
+                <th className="px-3 py-2.5">Price Per Km (₹)</th>
+                <th className="px-3 py-2.5">Fixed Estimate Price (₹)</th>
                 <th className="px-3 py-2.5 text-right">Actions</th>
               </tr>
             </thead>
@@ -141,15 +138,37 @@ export default function OutstationTiersTable({
                     />
                   </td>
 
-                  {/* Price per KM (Hidden as we now use master vehicle pricePerKm) */}
-                  <td className="hidden">
-                    <input
-                      type="hidden"
-                      value={tier.price}
-                    />
+                  {/* Price Per Km — now visible & editable */}
+                  <td className="px-3 py-2">
+                    <div className="relative flex items-center">
+                      <span className="absolute left-2 text-slate-400 text-[10px] font-bold">₹</span>
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.1"
+                        placeholder="e.g. 9"
+                        value={tier.price ?? ""}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          handleChangeField(
+                            index,
+                            "price",
+                            raw === "" ? 0 : parseFloat(raw) || 0
+                          );
+                        }}
+                        className={`w-20 pl-5 pr-2 py-1 border rounded focus:ring-1 focus:ring-saffron-500 outline-none text-center font-bold transition-colors ${
+                          tier.price > 100
+                            ? "border-red-400 bg-red-50 text-red-700"
+                            : "border-slate-200 text-slate-700"
+                        }`}
+                      />
+                    </div>
+                    {tier.price > 100 && (
+                      <p className="text-[9px] text-red-600 font-semibold mt-0.5 ml-0.5">⚠ Should be ≤100 (per-km rate)</p>
+                    )}
                   </td>
 
-                  {/* Flat Day Price (admin can set manually) */}
+                  {/* Flat Day Price */}
                   <td className="px-3 py-2">
                     <div className="relative flex items-center">
                       <span className="absolute left-2 text-slate-400 text-[10px] font-bold">₹</span>

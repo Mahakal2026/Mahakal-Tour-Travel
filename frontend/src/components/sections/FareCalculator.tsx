@@ -331,21 +331,23 @@ export default function FareCalculator({ vehicles: vehiclesProp = [] }: FareCalc
 
             {/* Customer Details */}
             <div className="border-t border-slate-100 pt-6">
-              <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-4">Your Contact Details (Optional)</h4>
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-4">Your Contact Details</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input
+                  required
                   type="text"
                   placeholder="Your Name"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:bg-white text-sm"
+                  className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:bg-white text-sm invalid:border-slate-200 invalid:bg-slate-50"
                 />
                 <input
                   type="tel"
+                  required
                   placeholder="WhatsApp Mobile Number"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:bg-white text-sm"
+                  className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:bg-white text-sm invalid:border-slate-200 invalid:bg-slate-50"
                 />
               </div>
             </div>

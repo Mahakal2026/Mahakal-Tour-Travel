@@ -95,26 +95,23 @@ export function calculateCanonicalFare(
         includedKm = exactMatch.minKm || standardMinKm;
 
         if (exactMatch.flatDayPrice && exactMatch.flatDayPrice > 0) {
+          // Admin set an explicit flat base price for this day tier
           basePrice = exactMatch.flatDayPrice;
           excessKm = Math.max(0, numKm - includedKm);
           excessRate = rateOutstation;
           excessCharge = excessKm * excessRate;
           calculationType = "tier_flat_override";
         } else {
-          const tierPrice = exactMatch.price || rateOutstation;
-          if (tierPrice > 100) {
-            basePrice = tierPrice;
-            excessKm = Math.max(0, numKm - includedKm);
-            excessRate = rateOutstation;
-            excessCharge = excessKm * excessRate;
-            calculationType = "tier_flat_rate";
-          } else {
-            basePrice = includedKm * rateOutstation;
-            excessKm = Math.max(0, numKm - includedKm);
-            excessRate = rateOutstation;
-            excessCharge = excessKm * excessRate;
-            calculationType = "tier_per_km_rate";
-          }
+          // Use tier.price as a per-km rate (always ≤ 100).
+          // Fall back to master pricePerKm if tier rate is 0 or invalid.
+          const tierPerKmRate = (exactMatch.price && exactMatch.price <= 100 && exactMatch.price > 0)
+            ? exactMatch.price
+            : rateOutstation;
+          basePrice = includedKm * tierPerKmRate;
+          excessKm = Math.max(0, numKm - includedKm);
+          excessRate = tierPerKmRate;
+          excessCharge = excessKm * excessRate;
+          calculationType = "tier_per_km_rate";
         }
       } else {
         const maxTier = sortedTiers[sortedTiers.length - 1];
@@ -129,10 +126,13 @@ export function calculateCanonicalFare(
         } else {
           const nextTier = sortedTiers.find((t) => Number(t.days) > numDays) || maxTier;
           includedKm = standardMinKm;
-          const tierPrice = nextTier.price > 100 ? rateOutstation : nextTier.price;
-          basePrice = includedKm * tierPrice;
+          // Always treat nextTier.price as a per-km rate
+          const tierPerKmRate = (nextTier.price && nextTier.price <= 100 && nextTier.price > 0)
+            ? nextTier.price
+            : rateOutstation;
+          basePrice = includedKm * tierPerKmRate;
           excessKm = Math.max(0, numKm - includedKm);
-          excessRate = tierPrice;
+          excessRate = tierPerKmRate;
           excessCharge = excessKm * excessRate;
           calculationType = "fallback_tier_rate";
         }

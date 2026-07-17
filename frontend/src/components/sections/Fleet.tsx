@@ -6,6 +6,7 @@ import Link from "next/link";
 import { FaUsers, FaSnowflake, FaWhatsapp } from "react-icons/fa";
 import { Vehicle } from "@/types";
 import { BookButtonWrapper } from "@/components/ui/ClientBookButtons";
+import { calculateLocalFare } from "@/lib/fareFormula";
 
 interface FleetProps {
   vehicles: Vehicle[];
@@ -29,7 +30,7 @@ export default function Fleet({ vehicles = [] }: FleetProps) {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {activeVehicles.map((v) => (
+            {activeVehicles.map((v, index) => (
               <div
                 key={v._id}
                 className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
@@ -37,10 +38,13 @@ export default function Fleet({ vehicles = [] }: FleetProps) {
                 {/* Image Container */}
                 <div className="h-56 relative bg-slate-100 overflow-hidden flex items-center justify-center p-4">
                   {v.image ? (
-                    <img
+                    <Image
                       src={v.image}
                       alt={v.name}
-                      className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500"
+                      fill
+                      priority={index <= 2}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
                     <span className="text-slate-400 font-bold">Cab Image</span>
@@ -84,13 +88,16 @@ export default function Fleet({ vehicles = [] }: FleetProps) {
                         <span className="text-2xl font-extrabold text-slate-950">₹{v.pricePerKm}</span>
                         <span className="text-xs text-slate-500 font-medium"> / Km</span>
                       </div>
-                      {v.localPrice && (
-                        <div className="text-right">
-                          <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">Local Flat Rate</span>
-                          <span className="text-lg font-bold text-slate-700">₹{v.localPrice.toLocaleString("en-IN")}</span>
-                          <span className="text-[10px] text-slate-500 block">(8h/80km)</span>
-                        </div>
-                      )}
+                      {(() => {
+                        const localFare = calculateLocalFare(v.localPrice, v.pricePerKm);
+                        return (
+                          <div className="text-right">
+                            <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">Local Flat Rate</span>
+                            <span className="text-lg font-bold text-slate-700">₹{localFare.price.toLocaleString("en-IN")}</span>
+                            <span className="text-[10px] text-slate-500 block">(8h/80km)</span>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Action buttons */}

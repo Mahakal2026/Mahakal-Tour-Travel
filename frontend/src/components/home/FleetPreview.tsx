@@ -88,6 +88,7 @@ export default function FleetPreview({ vehicles: vehiclesProp = [] }: { vehicles
                         }
                         alt={vehicle.name}
                         fill
+                        priority={index <= 2}
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover group-hover:scale-105 transition-all duration-500 opacity-90 p-0"
                       />

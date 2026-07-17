@@ -1,4 +1,4 @@
-export const revalidate = 60;
+export const revalidate = 0;
 
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -7,6 +7,7 @@ import { Users, Snowflake, CheckCircle2, MessageCircle } from "lucide-react";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { getVehicleProductSchema } from "@/lib/seo";
 import { BookButtonWrapper } from "@/components/ui/ClientBookButtons";
+import { calculateLocalFare } from "@/lib/fareFormula";
 
 interface PageProps {
   params: Promise<{ vehicleId: string }>;
@@ -15,7 +16,7 @@ interface PageProps {
 async function getVehicle(id: string) {
   const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
   try {
-    const res = await fetch(`${url}/vehicles/${id}`, { next: { revalidate: 60 } });
+    const res = await fetch(`${url}/vehicles/${id}`, { cache: "no-store" });
     if (!res.ok) return null;
     const json = await res.json();
     return json?.data || json;
@@ -54,6 +55,7 @@ export default async function VehicleDetailsPage({ params }: PageProps) {
   }
 
   const jsonLd = getVehicleProductSchema(vehicle);
+  const localFareResult = calculateLocalFare(vehicle.localPrice, vehicle.pricePerKm);
 
 
 
@@ -167,9 +169,9 @@ export default async function VehicleDetailsPage({ params }: PageProps) {
                   <span className="text-4xl font-extrabold text-slate-950 font-cinzel">
                     ₹{vehicle.pricePerKm} <span className="text-sm text-slate-500 font-normal">/ Km</span>
                   </span>
-                  {vehicle.localPrice && (
+                  {localFareResult && (
                     <span className="block text-xs text-emerald-600 font-bold mt-1">
-                      Local flat rate: ₹{vehicle.localPrice.toLocaleString("en-IN")} (8 Hrs / 80 Km)
+                      Local flat rate: ₹{localFareResult.price.toLocaleString("en-IN")} (8 Hrs / 80 Km)
                     </span>
                   )}
                 </div>

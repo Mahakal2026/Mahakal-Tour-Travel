@@ -87,7 +87,7 @@ export default async function PackageDetailsPage({ params }: PageProps) {
               {pkg.image ? (
                 <Image
                   src={pkg.image}
-                  alt={pkg.title}
+                  alt={pkg.name || pkg.title || "Tour Package"}
                   fill
                   priority
                   sizes="(max-width: 768px) 100vw, 50vw"

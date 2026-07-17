@@ -12,6 +12,19 @@ export default function ErrorBoundary({
   reset: () => void;
 }) {
   useEffect(() => {
+    // Check if it's a transient ChunkLoadError from Next.js / Turbopack HMR cache out of sync
+    const errorMsg = error?.message || error?.name || "";
+    if (errorMsg.includes("ChunkLoadError") || errorMsg.includes("Failed to load chunk")) {
+      const hasReloaded = typeof window !== "undefined" && sessionStorage.getItem("chunk_reload_attempt");
+      if (!hasReloaded && typeof window !== "undefined") {
+        sessionStorage.setItem("chunk_reload_attempt", "true");
+        window.location.reload();
+        return;
+      }
+    } else if (typeof window !== "undefined") {
+      sessionStorage.removeItem("chunk_reload_attempt");
+    }
+
     // Log the error to an error reporting service / console
     console.error("Client Error Boundary Caught:", error);
   }, [error]);
