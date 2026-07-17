@@ -28,8 +28,7 @@ export function calculateOutstationFare(
   tiers: { days: number; minKm: number; price: number; flatDayPrice?: number | null }[],
   pricePerKm: number,
   days: number,
-  km: number,
-  outstationPrice?: number
+  km: number
 ): FareCalculationResult {
   const numDays = Math.max(1, Number(days) || 1);
   const numKm = Math.max(numDays * 250, Number(km) || numDays * 250);
@@ -48,17 +47,8 @@ export function calculateOutstationFare(
     : null;
   let calculationType = "standard_per_km";
 
-  // Priority 1: Top-level outstationPrice override (e.g., Innova Crysta flat day rate)
-  if (outstationPrice && outstationPrice > 0) {
-    includedKm = standardMinKm;
-    basePrice = numDays * outstationPrice;
-    excessKm = Math.max(0, numKm - includedKm);
-    excessRate = rateOutstation;
-    excessCharge = excessKm * excessRate;
-    calculationType = "admin_flat_day_rate";
-  }
   // Priority 2: Configured Outstation Tiers
-  else if (tiers && tiers.length > 0) {
+  if (tiers && tiers.length > 0) {
     const sortedTiers = [...tiers].sort((a, b) => Number(a.days) - Number(b.days));
     const exactMatch = sortedTiers.find((t) => Number(t.days) === numDays);
 
@@ -172,8 +162,7 @@ export function calculateClientSideFare(
       vehicle.outstationTiers || [],
       vehicle.pricePerKm,
       days || 1,
-      km || (days || 1) * 250,
-      vehicle.outstationPrice
+      km || (days || 1) * 250
     );
   } else {
     // one-way

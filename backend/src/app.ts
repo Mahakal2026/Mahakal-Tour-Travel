@@ -54,7 +54,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 // Handle preflight OPTIONS requests cleanly across Express versions
-app.options("*", cors(corsOptions));
+app.options(/(.*)/, cors(corsOptions));
 
 // Secure HTTP headers
 app.use(helmet());

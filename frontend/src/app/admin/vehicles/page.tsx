@@ -88,11 +88,6 @@ export default function VehiclesAdminPage() {
     } else {
       formData.append("localPrice", "");
     }
-    if (data.outstationPrice !== undefined && data.outstationPrice !== null && data.outstationPrice !== "") {
-      formData.append("outstationPrice", data.outstationPrice);
-    } else {
-      formData.append("outstationPrice", "");
-    }
     if (data.subtitle) {
       formData.append("subtitle", data.subtitle);
     } else {

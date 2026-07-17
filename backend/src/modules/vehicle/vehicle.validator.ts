@@ -11,12 +11,8 @@ export const createVehicleSchema = z.object({
   }),
   pricePerKm: z.coerce.number().min(0, "Price per KM must be 0 or greater"),
   localPrice: z.preprocess(
-    (val) => (val === "" || val === null || val === undefined || isNaN(Number(val)) ? undefined : Number(val)),
-    z.number().min(0, "Local price must be 0 or greater").optional()
-  ),
-  outstationPrice: z.preprocess(
-    (val) => (val === "" || val === null || val === undefined || isNaN(Number(val)) ? undefined : Number(val)),
-    z.number().min(0, "Outstation price must be 0 or greater").optional()
+    (val) => (val === "" || val === "null" || val === undefined ? undefined : Number(val)),
+    z.number().min(0, "Local price cannot be negative").optional()
   ),
   subtitle: z.string().trim().max(100, "Subtitle cannot exceed 100 characters").optional(),
   image: z.string().min(1, "Vehicle image URL is required"),

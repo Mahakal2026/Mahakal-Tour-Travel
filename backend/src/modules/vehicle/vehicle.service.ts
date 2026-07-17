@@ -38,7 +38,7 @@ export class VehicleService {
     const updateQuery: any = { $set: {}, $unset: {} };
     for (const key of Object.keys(data)) {
       if (data[key] === undefined || data[key] === null || data[key] === "") {
-        if (key === "localPrice" || key === "outstationPrice" || key === "subtitle") {
+        if (key === "localPrice" || key === "subtitle") {
           updateQuery.$unset[key] = 1;
         }
       } else {

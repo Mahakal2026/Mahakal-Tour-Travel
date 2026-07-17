@@ -25,7 +25,6 @@ export interface IFareCalculationResult {
 export interface IVehicleInput {
   pricePerKm?: number;
   localPrice?: number;
-  outstationPrice?: number;
   outstationTiers?: IOutstationTier[];
 }
 
@@ -87,17 +86,8 @@ export function calculateCanonicalFare(
       : null;
     let calculationType = "standard_per_km";
 
-    // Priority 1: Top-level outstationPrice override (e.g., Innova Crysta flat day rate)
-    if (vehicle.outstationPrice && vehicle.outstationPrice > 0) {
-      includedKm = standardMinKm;
-      basePrice = numDays * vehicle.outstationPrice;
-      excessKm = Math.max(0, numKm - includedKm);
-      excessRate = rateOutstation;
-      excessCharge = excessKm * excessRate;
-      calculationType = "admin_flat_day_rate";
-    }
     // Priority 2: Configured Outstation Tiers
-    else if (vehicle.outstationTiers && vehicle.outstationTiers.length > 0) {
+    if (vehicle.outstationTiers && vehicle.outstationTiers.length > 0) {
       const sortedTiers = [...vehicle.outstationTiers].sort((a, b) => Number(a.days) - Number(b.days));
       const exactMatch = sortedTiers.find((t) => Number(t.days) === numDays);
 
