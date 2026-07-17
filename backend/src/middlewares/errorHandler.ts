@@ -71,10 +71,15 @@ export const errorHandler = (
 
   if (statusCode >= 500) {
     logger.error(`🔥 500 Error on ${reqInfo}: ${err.stack || logMessage}`);
-  } else if (statusCode === 401 && req.originalUrl.includes("/admin/verify")) {
-    // Expected: frontend polls /admin/verify on every page load to check session
-    // A 401 here just means the user is not logged in — log silently at debug level
+  } else if (statusCode === 401 && req.originalUrl.includes("/admin/")) {
+    // Expected: 401 on any admin route = token expired or not logged in.
+    // The frontend interceptor handles silent refresh + redirect to /admin/login automatically.
+    // No need to surface this as a warning — log silently at debug level.
     logger.debug(`🔒 401 on ${reqInfo}: ${logMessage}`);
+  } else if (statusCode === 404 && req.originalUrl.includes("/fare/calculate")) {
+    // Expected: frontend may send a stale vehicleId (e.g. vehicle deleted from DB).
+    // The client-side fare calculator has a local fallback — not an actionable server error.
+    logger.debug(`🚗 404 on ${reqInfo}: ${logMessage}`);
   } else {
     logger.warn(`⚠️ ${statusCode} Error on ${reqInfo}: ${logMessage}`);
   }
