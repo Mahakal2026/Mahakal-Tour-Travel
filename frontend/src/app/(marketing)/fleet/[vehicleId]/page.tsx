@@ -13,15 +13,16 @@ interface PageProps {
   params: Promise<{ vehicleId: string }>;
 }
 
+import axios from "axios";
+
 async function getVehicle(id: string) {
   const url = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000/api";
   try {
-    const res = await fetch(`${url}/vehicles/${id}`, { cache: "no-store" });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json?.data || json;
-  } catch (err) {
-    console.error("Single vehicle fetch error:", err);
+    const res = await axios.get(`${url}/vehicles/${id}`);
+    const result = res.data?.data || res.data;
+    return result;
+  } catch (err: any) {
+    console.error("[getVehicle] Single vehicle fetch error:", err?.message || err);
     return null;
   }
 }
