@@ -8,8 +8,8 @@ export const BUSINESS = {
   tagline: "Tour & Travels",
   phone: "6269643919",
   phoneFormatted: "+91 62696 43919",
-  whatsappNumber: "916269643919",
-  email: "mahakaltt.gwalior@gmail.com",
+  whatsappNumber: "91 6269643919",
+  email: "mahakaltravels20@gmail.com",
   address: {
     street: "Kampoo, Lashkar",
     city: "Gwalior",

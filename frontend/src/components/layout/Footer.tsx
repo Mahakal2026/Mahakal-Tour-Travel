@@ -108,7 +108,9 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-saffron-500 flex-shrink-0" />
-                <span>{BUSINESS.email}</span>
+                <Link href={`mailto:${BUSINESS.email}`}>
+                  {BUSINESS.email}
+                </Link>
               </li>
             </ul>
           </div>
